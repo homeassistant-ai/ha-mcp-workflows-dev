@@ -493,7 +493,13 @@ jobs:
               'assistants to control Home Assistant smart homes: entity control, automations, scripts, dashboards,',
               'templates, and more).',
               '',
-              'Evaluate ONLY on the text below. Respond with ONLY a JSON object — no prose, no markdown, no code block.',
+              '## Approach B — workspace file access enabled',
+              'You have read access to this workspace (homeassistant-ai/ha-mcp checkout). Read these files as needed:',
+              '- site/src/data/tools.json — full tool list with names and descriptions (for priority/size assessment)',
+              '- CHANGELOG.md — recent release history (for regression detection)',
+              '- README.md — project overview',
+              '',
+              'Respond with ONLY a JSON object — no prose, no markdown, no code block.',
               '',
               '## Issue #' + issueNumber + ': ' + issueTitle,
               'Type: ' + issueType,
@@ -502,9 +508,6 @@ jobs:
               issueBody,
               authorSection,
               duplicateSection,
-              toolSection,
-              '## Recent Release Context (for regression detection)',
-              changelog,
               '',
               '## Evaluation Tasks',
               '',
@@ -560,17 +563,12 @@ jobs:
 
             core.setOutput('prompt', prompt);
 
-      # Approach A (active): project context pre-injected into prompt (tool list + changelog).
-      # Tools are disabled — 1 model call, deterministic output.
+      # Approach B (active): file tools enabled — Gemini reads tools.json / CHANGELOG.md from workspace.
+      # No pre-injected tool list or changelog; Gemini discovers context via read_file / glob.
       #
-      # Approach B (commented out): give Gemini file-read access to the workspace so it can
-      # look things up itself. Swap to settings below to test:
-      #
-      #   "model": { "maxSessionTurns": -1, "temperature": 0 },
-      #   "tools": { "core": ["read_file", "read_many_files", "glob"] }
-      #
-      # And change the prompt instruction from "Evaluate ONLY on the text below" to:
-      # "You may read files in this workspace (tools.json, README.md, CHANGELOG.md) for context."
+      # Approach A (reference): pre-inject everything, tools disabled, 1 deterministic call:
+      #   "tools": { "core": [] }
+      #   + include toolSection and changelog in the prompt (see build_prompt step)
       - name: Evaluate
         id: evaluate
         uses: google-github-actions/run-gemini-cli@f77273f4c914e4bf38440cf36a0369cb64a37489 # v0.1.22
@@ -588,7 +586,7 @@ jobs:
                 "temperature": 0
               },
               "tools": {
-                "core": []
+                "core": ["read_file", "read_many_files", "glob"]
               }
             }
           prompt: '${{ steps.build_prompt.outputs.prompt }}'
