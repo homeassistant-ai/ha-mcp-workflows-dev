@@ -197,7 +197,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          TOOLS=$(gh api "repos/homeassistant-ai/ha-mcp/contents/tools.json" \
+          TOOLS=$(gh api "repos/homeassistant-ai/ha-mcp/contents/site/src/data/tools.json" \
             --jq '.content' 2>/dev/null | base64 -d 2>/dev/null | \
             python3 -c "import json,sys; tools=json.load(sys.stdin); print('\n'.join(t['name']+': '+(t.get('description') or '')[:80].rstrip() for t in tools))" \
             2>/dev/null || echo "")
@@ -210,29 +210,74 @@ jobs:
       - name: Extract discriminative keywords
         id: keywords
         continue-on-error: true
-        uses: actions/ai-inference@v1
+        uses: actions/github-script@v9
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_TITLE: ${{ steps.issue_data.outputs.issue_title }}
+          ISSUE_BODY: ${{ steps.issue_data.outputs.issue_body }}
+          TOOL_LIST: ${{ steps.tool_list.outputs.tools }}
         with:
-          model: openai/gpt-4.1-nano
-          system-prompt: |
-            You extract specific discriminative search keywords from GitHub issues for ha-mcp (Home Assistant MCP Server).
-            The project exposes these tools to AI assistants:
-            ${{ steps.tool_list.outputs.tools }}
+          script: |
+            const issueTitle = process.env.ISSUE_TITLE || '';
+            const issueBody = (process.env.ISSUE_BODY || '').substring(0, 1200);
+            const toolList = process.env.TOOL_LIST || '';
+            const token = process.env.GH_TOKEN;
 
-            Rules:
-            - INCLUDE: exact tool names from the list above, HTTP/Python error codes, specific entity domain names (light, switch, sensor, climate, media_player), operation types, verbatim error message fragments
-            - EXCLUDE all generic/ubiquitous terms: home assistant, ha, mcp, entity, automation, integration, service, tool, error, bug, issue, problem, not working, broken, fail, update, version, server, client, response, request, returns, getting, using
-            - Also add synonyms and alternate phrasings for the specific terms you identify
-          prompt: |
-            Issue title: ${{ steps.issue_data.outputs.issue_title }}
+            const systemPrompt = [
+              'You extract specific discriminative search keywords from GitHub issues for ha-mcp (Home Assistant MCP Server).',
+              'The project exposes these tools to AI assistants:',
+              toolList,
+              '',
+              'Rules:',
+              '- INCLUDE: exact tool names from the list above, HTTP/Python error codes, specific entity domain names (light, switch, sensor, climate, media_player), operation types, verbatim error message fragments',
+              '- EXCLUDE all generic/ubiquitous terms: home assistant, ha, mcp, entity, automation, integration, service, tool, error, bug, issue, problem, not working, broken, fail, update, version, server, client, response, request, returns, getting, using',
+              '- Add synonyms and alternate phrasings as additional entries with lower weight',
+            ].join('\n');
 
-            Issue body:
-            ${{ steps.issue_data.outputs.issue_body }}
+            const userPrompt = [
+              'Issue title: ' + issueTitle,
+              '',
+              'Issue body:',
+              issueBody,
+              '',
+              'Extract 8-14 discriminative keywords ordered by specificity (most unique first).',
+              'Include synonyms and alternate phrasings.',
+              'Return ONLY a JSON array: [{"term":"ha_call_service","weight":1.0},{"term":"service call","weight":0.7}]',
+            ].join('\n');
 
-            Extract 8-14 discriminative keywords ordered by specificity (most unique first).
-            Include synonyms and alternate phrasings as additional entries with lower weight.
-            Return ONLY a JSON array: [{"term":"ha_call_service","weight":1.0},{"term":"service call","weight":0.7}]
-          max-completion-tokens: '400'
-          temperature: '0.1'
+            try {
+              const resp = await fetch('https://models.github.ai/inference/chat/completions', {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${token}`,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  model: 'openai/gpt-4.1-nano',
+                  messages: [
+                    { role: 'system', content: systemPrompt },
+                    { role: 'user', content: userPrompt },
+                  ],
+                  max_tokens: 400,
+                  temperature: 0.1,
+                }),
+              });
+
+              if (!resp.ok) {
+                const text = await resp.text();
+                core.warning(`GitHub Models API error: ${resp.status} — ${text.substring(0, 200)}`);
+                core.setOutput('response', '');
+                return;
+              }
+
+              const data = await resp.json();
+              const content = data.choices?.[0]?.message?.content || '';
+              core.info('Extracted keywords: ' + content.substring(0, 300));
+              core.setOutput('response', content);
+            } catch (e) {
+              core.warning('Keyword extraction failed: ' + e.message);
+              core.setOutput('response', '');
+            }
 
       - name: BM25 candidate retrieval
         id: bm25
