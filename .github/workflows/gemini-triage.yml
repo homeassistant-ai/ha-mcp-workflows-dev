@@ -565,10 +565,11 @@ jobs:
         continue-on-error: true
         uses: actions/github-script@v9
         env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PROMPT: ${{ steps.build_prompt.outputs.prompt }}
         with:
           script: |
-            const token = process.env.GITHUB_TOKEN;
+            const token = process.env.GH_TOKEN;
             const prompt = process.env.PROMPT;
 
             const call = async (model) => {
@@ -582,7 +583,10 @@ jobs:
                   temperature: 0,
                 }),
               });
-              return { status: resp.status, data: await resp.json() };
+              const text = await resp.text();
+              let data;
+              try { data = JSON.parse(text); } catch { data = { error: text }; }
+              return { status: resp.status, data };
             };
 
             let result = await call('openai/gpt-4.1');
