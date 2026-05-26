@@ -169,14 +169,18 @@ jobs:
             const issueBody = issue.data.body || '';
             const labels = issue.data.labels.map(l => l.name);
 
-            // Detect issue type from labels or body markers
+            // Detect issue type from labels (auto-applied by template) or textarea section headers
             let issueType = 'unknown';
-            if (labels.includes('runtime-bug') || issueBody.includes('### 🐛 Runtime Bug')) {
+            if (labels.includes('runtime-bug') || issueBody.includes('### 💬 What Happened?')) {
               issueType = 'runtime-bug';
-            } else if (labels.includes('startup-bug') || issueBody.includes('### 🚀 Startup/Installation Bug')) {
+            } else if (labels.includes('startup-bug') || issueBody.includes('### 💬 What Went Wrong?')) {
               issueType = 'startup-bug';
-            } else if (labels.includes('agent-behavior') || issueBody.includes('### 🤖 AI Agent Behavior')) {
+            } else if (labels.includes('agent-behavior') || issueBody.includes('### 💬 Why Are You Reporting This?')) {
               issueType = 'agent-behavior';
+            } else if (labels.includes('enhancement') || issueBody.includes('### What would you like to see?')) {
+              issueType = 'feature-request';
+            } else if (labels.includes('documentation') || issueBody.includes('### Where is the issue?')) {
+              issueType = 'documentation';
             }
 
             // Format author comments for prompt
@@ -393,9 +397,15 @@ jobs:
               return;
             }
 
+            const cleanBody = t => (t || '')
+              .replace(/^###\s+.+$/gm, '')
+              .replace(/^_No response_$/gim, '')
+              .replace(/\n{3,}/g, '\n\n')
+              .trim();
+
             const formatted = candidates.map(c =>
               '#' + c.issue.number + ' [' + c.issue.state + ']: ' + c.issue.title + '\n' +
-              (c.issue.body || '').substring(0, 600)
+              cleanBody(c.issue.body).substring(0, 600)
             ).join('\n\n---\n\n');
 
             core.info('BM25 found ' + candidates.length + ' candidates: ' + candidates.map(c => '#' + c.issue.number).join(', '));
@@ -454,11 +464,38 @@ jobs:
             const issueNumber = ${{ steps.issue_number.outputs.number }};
             const issueType = process.env.ISSUE_TYPE || 'unknown';
             const issueTitle = process.env.ISSUE_TITLE || '';
-            const issueBody = (process.env.ISSUE_BODY || '').substring(0, 1500);
+            const rawBody = process.env.ISSUE_BODY || '';
             const authorComments = process.env.ISSUE_AUTHOR_COMMENTS || '';
             const bm25Candidates = process.env.BM25_CANDIDATES || '';
             const changelog = process.env.CHANGELOG_CONTEXT || 'No changelog available.';
             const toolList = process.env.TOOL_LIST || '';
+
+            // Strip template boilerplate: ### section headers, _No response_, blank collapse
+            const cleanBody = t => (t || '')
+              .replace(/^###\s+.+$/gm, '')
+              .replace(/^_No response_$/gim, '')
+              .replace(/\n{3,}/g, '\n\n')
+              .trim();
+
+            // Summarise which template sections were filled — preserves completeness signal
+            // without sending the header text to the model
+            const sectionSummary = (() => {
+              const parts = rawBody.split(/^###\s+/m).slice(1);
+              if (parts.length === 0) return '';
+              const filled = [], empty = [];
+              for (const part of parts) {
+                const nl = part.indexOf('\n');
+                const name = part.substring(0, nl).trim().replace(/[^\w\s()]/g, '').trim();
+                const content = cleanBody(part.substring(nl));
+                (content.length > 10 ? filled : empty).push(name);
+              }
+              const parts2 = [];
+              if (filled.length) parts2.push(`Filled: ${filled.join(', ')}`);
+              if (empty.length)  parts2.push(`Empty: ${empty.join(', ')}`);
+              return parts2.length ? `Template sections — ${parts2.join(' | ')}\n` : '';
+            })();
+
+            const issueBody = cleanBody(rawBody).substring(0, 1500);
 
             // Parse extracted keywords for context (show top-5 by weight in prompt)
             let keywordSummary = '';
@@ -497,6 +534,7 @@ jobs:
               '',
               '## Issue #' + issueNumber + ': ' + issueTitle,
               'Type: ' + issueType,
+              sectionSummary,
               keywordSummary,
               'Body:',
               issueBody,
