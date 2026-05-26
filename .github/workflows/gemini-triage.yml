@@ -199,14 +199,8 @@ jobs:
         run: |
           TOOLS=$(gh api "repos/homeassistant-ai/ha-mcp/contents/tools.json" \
             --jq '.content' 2>/dev/null | base64 -d 2>/dev/null | \
-            python3 -c "
-import json, sys
-try:
-    tools = json.load(sys.stdin)
-    lines = [t['name'] + ': ' + (t.get('description') or '')[:80].rstrip() for t in tools]
-    print('\n'.join(lines))
-except: pass
-" 2>/dev/null || echo "")
+            python3 -c "import json,sys; tools=json.load(sys.stdin); print('\n'.join(t['name']+': '+(t.get('description') or '')[:80].rstrip() for t in tools))" \
+            2>/dev/null || echo "")
           {
             echo "tools<<EOF"
             echo "$TOOLS"
