@@ -516,13 +516,15 @@ jobs:
             core.setOutput('prompt', prompt);
 
       # Approach A (active): project context pre-injected into prompt (tool list + changelog).
-      # Approach B (commented out): give Gemini file-read access to workspace so it can look
-      # things up itself. To test B, swap to settings below and set maxSessionTurns: 2.
+      # Tools are disabled — 1 model call, deterministic output.
       #
-      # Approach B settings:
-      #   "model": { "maxSessionTurns": 2, "temperature": 0 },
+      # Approach B (commented out): give Gemini file-read access to the workspace so it can
+      # look things up itself. Swap to settings below to test:
+      #
+      #   "model": { "maxSessionTurns": -1, "temperature": 0 },
       #   "tools": { "core": ["read_file", "read_many_files", "glob"] }
-      # And change the prompt instruction from "Evaluate ONLY on the text below" to
+      #
+      # And change the prompt instruction from "Evaluate ONLY on the text below" to:
       # "You may read files in this workspace (tools.json, README.md, CHANGELOG.md) for context."
       - name: Evaluate
         id: evaluate
@@ -537,7 +539,7 @@ jobs:
           settings: |
             {
               "model": {
-                "maxSessionTurns": 1,
+                "maxSessionTurns": -1,
                 "temperature": 0
               },
               "tools": {
