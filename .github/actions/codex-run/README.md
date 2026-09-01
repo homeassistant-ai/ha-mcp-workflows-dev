@@ -71,9 +71,8 @@ jobs:
         with:
           codex-auth: ${{ secrets.CODEX_AUTH }}
           sandbox: read-only
-          instructions: |
-            Read .codex-context/issues.json and review those issues.
-            Return analysis only.
+          allow-shell: "false"
+          instructions-file: .codex-context/issue-review-prompt.txt
 ```
 
 For repository edits, the caller may choose `sandbox: workspace-write` and
@@ -97,14 +96,15 @@ embed every required artifact directly in that file.
 
 Validated on 2026-08-31 with Codex CLI `0.151.0`:
 
-- [Hello World run 33456749953](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/33456749953)
+- [Hello World run 33459225512](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/33459225512)
   passed the verbatim instruction assertion and forced a `CODEX_AUTH` rewrite
-  through the repository-scoped secret-writer PAT.
-- [Issue review run 33457247937](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/33457247937)
+  through the renewed repository-scoped secret-writer PAT.
+- [Issue review run 33459227873](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/33459227873)
   analyzed fixtures `#62`–`#65`, including the deliberate `#62/#63` duplicate,
-  from caller-collected JSON and the checked-out code.
-- [Pull-request review run 33457368126](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/33457368126)
-  analyzed fixtures `#66`–`#68` from caller-collected metadata and patches.
+  from a caller-built prompt with the shell disabled.
+- [Pull-request review run 33459231108](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/33459231108)
+  analyzed fixtures `#66`–`#68` from caller-collected metadata, patches and
+  inline review-thread state with the shell disabled.
 
 The review workflows write only to the Actions log and step summary. Hosted
 ChatGPT connectors remain disabled, so repository visibility is bounded by the
