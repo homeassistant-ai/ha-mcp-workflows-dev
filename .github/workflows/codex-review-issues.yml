@@ -1,46 +1,43 @@
-name: Codex example - hello world
+name: Codex example - review open issues
 
 on:
   workflow_dispatch:
 
 permissions:
   contents: read
+  issues: read
 
 concurrency:
   group: codex-auth-${{ github.repository }}
   cancel-in-progress: false
 
 jobs:
-  hello-world:
+  review-issues:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
 
-      - name: Run arbitrary instructions
+      - name: Ask Codex to review open issues
         id: codex
         uses: ./.github/actions/codex-run
         with:
           codex-auth: ${{ secrets.CODEX_AUTH }}
           sandbox: read-only
           instructions: |
-            Respond with exactly: Hello world
+            Review the open issues in this repository. Use gh to inspect their
+            titles, bodies, labels and comments. Identify likely duplicates,
+            missing information, plausible root causes, and concrete fix or
+            triage suggestions. Compare issues against the checked-out code when
+            useful. Do not create, edit, label, close or comment on anything.
+            Return a concise Markdown report in the final response.
 
-      - name: Verify the caller's expectation
-        env:
-          OUTPUT_PATH: ${{ steps.codex.outputs.output-path }}
-        run: |
-          set -euo pipefail
-          actual="$(tr -d '\r\n' < "$OUTPUT_PATH")"
-          if [[ "$actual" != "Hello world" ]]; then
-            echo "::error::Expected 'Hello world', received '$actual'."
-            exit 1
-          fi
-
-      - name: Validate secret-writer PAT and persist auth
+      - name: Persist refreshed Codex auth
         if: ${{ always() }}
         uses: ./.github/actions/codex-update-auth
         with:
@@ -48,4 +45,3 @@ jobs:
           original-codex-auth: ${{ steps.codex.outputs.original-auth-path }}
           gh-token: ${{ secrets.CODEX_AUTH_PAT }}
           repository: ${{ github.repository }}
-          force-update: "true"
