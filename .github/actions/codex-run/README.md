@@ -102,13 +102,13 @@ embed every required artifact directly in that file.
 
 Validated on 2026-08-31 with Codex CLI `0.151.0`:
 
-- [Hello World run 33459225512](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/33459225512)
+- [Hello World run 33460140551](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/33460140551)
   passed the verbatim instruction assertion and forced a `CODEX_AUTH` rewrite
   through the renewed repository-scoped secret-writer PAT.
-- [Issue review run 33459227873](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/33459227873)
+- [Issue review run 33460186362](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/33460186362)
   analyzed fixtures `#62`–`#65`, including the deliberate `#62/#63` duplicate,
   from a caller-built prompt with the shell disabled.
-- [Pull-request review run 33459231108](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/33459231108)
+- [Pull-request review run 33460188532](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/33460188532)
   analyzed fixtures `#66`–`#68` from caller-collected metadata, patches and
   inline review-thread state with the shell disabled.
 
