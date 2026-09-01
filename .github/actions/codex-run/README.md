@@ -2,6 +2,9 @@
 
 `codex-run` passes the caller's `instructions` to `codex exec` verbatim. It
 does not add a role, output contract, repository context, or task wrapper.
+Hosted ChatGPT apps/connectors are disabled so they cannot bypass the GitHub
+permissions selected by the workflow caller. Callers may collect authorized
+context into workspace files or expose narrowly scoped command-line tokens.
 
 The caller owns:
 
@@ -63,7 +66,8 @@ jobs:
           codex-auth: ${{ secrets.CODEX_AUTH }}
           sandbox: read-only
           instructions: |
-            Review the open issues using gh. Return analysis only.
+            Read .codex-context/issues.json and review those issues.
+            Return analysis only.
 ```
 
 For repository edits, the caller may choose `sandbox: workspace-write` and

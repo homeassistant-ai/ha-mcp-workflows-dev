@@ -160,6 +160,7 @@ runs:
         args=(
           exec
           --ignore-user-config
+          -c apps._default.enabled=false
           --ephemeral
           --color never
           --sandbox "$SANDBOX_INPUT"

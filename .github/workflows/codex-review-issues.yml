@@ -23,6 +23,18 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Collect authorized issue context
+        run: |
+          set -euo pipefail
+          mkdir -p .codex-context
+          gh issue list \
+            --state open \
+            --label workflow-fixture \
+            --limit 100 \
+            --json number,title,body,author,labels,comments,createdAt,updatedAt,url \
+            > .codex-context/issues.json
+          jq -e 'length > 0' .codex-context/issues.json >/dev/null
+
       - name: Ask Codex to review open issues
         id: codex
         uses: ./.github/actions/codex-run
@@ -30,13 +42,12 @@ jobs:
           codex-auth: ${{ secrets.CODEX_AUTH }}
           sandbox: read-only
           instructions: |
-            Review the open issues in this repository that carry the
-            workflow-fixture label. Use gh to inspect their titles, bodies,
-            labels and comments. Identify likely duplicates, missing
-            information, plausible root causes, and concrete fix or triage
-            suggestions. Compare issues against the checked-out code when
-            useful. Do not create, edit, label, close or comment on anything.
-            Return a concise Markdown report in the final response.
+            Read .codex-context/issues.json and review every issue in that file.
+            Identify likely duplicates, missing information, plausible root
+            causes, and concrete fix or triage suggestions. Compare issues
+            against the checked-out code when useful. Do not use network tools
+            or modify files or external state. Return a concise Markdown report
+            in the final response.
 
       - name: Persist refreshed Codex auth
         if: ${{ always() }}
