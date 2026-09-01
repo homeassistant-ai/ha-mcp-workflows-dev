@@ -2,17 +2,29 @@
 
 Guidance for Claude Code when working with this repository.
 
+## Workflow development repository
+
+- This repository is a disposable workflow-development bench derived from
+  `homeassistant-ai/ha-mcp`; the product repository remains canonical.
+- Issues and pull requests labeled `workflow-fixture` are synthetic test data.
+- Direct commits to `master` are allowed only when Julien explicitly requests
+  them for workflow iteration; otherwise follow the branch and PR rules below.
+- Do not copy workflow secrets to the product repository. Each repository owns
+  a distinct `CODEX_AUTH` refresh token.
+
 ## Repository Structure
 
 This repository uses a worktree-based development workflow.
 
 **Documentation Setup:**
+
 - This file is `AGENTS.md` (the canonical source)
 - `CLAUDE.md` is a symlink pointing to `AGENTS.md`
 - Read either file - they're the same content
 - Commit changes to `AGENTS.md`, the symlink will automatically reflect them
 
 **Directory Structure:**
+
 ```
 /home/julien/github/ha-mcp/           # Main repository (checkout master here)
 ├── AGENTS.md                          # This file (canonical source)
@@ -25,6 +37,7 @@ This repository uses a worktree-based development workflow.
 ```
 
 **Why use `worktree/` subdirectory:**
+
 - Keeps worktrees organized in one place
 - Gitignored (won't pollute `git status`)
 - All worktrees automatically inherit `.claude/agents/` workflows
@@ -48,6 +61,7 @@ git worktree add ../issue-42 -b issue-42       # ❌ Outside repo, no .claude/ag
 ```
 
 **Working in a worktree:**
+
 ```bash
 # Navigate to your worktree
 cd worktree/issue-42
@@ -63,6 +77,7 @@ git worktree remove worktree/issue-42
 ```
 
 **Cleaning up stale worktrees:**
+
 ```bash
 # If worktree directories were deleted but git still tracks them
 git worktree prune
@@ -72,11 +87,11 @@ git worktree prune
 
 Custom agent workflows are located in `.claude/agents/`:
 
-| Agent | File | Model | Purpose |
-|-------|------|-------|---------|
-| **issue-analysis** | `issue-analysis.md` | Opus | Deep issue analysis - comprehensive codebase exploration, implementation planning, architectural assessment, complexity evaluation. Complements automated Gemini triage with human-directed deep analysis. |
-| **issue-to-pr-resolver** | `issue-to-pr-resolver.md` | Sonnet | End-to-end issue implementation: pre-flight checks → worktree creation → implementation with tests → pre-PR checkpoint → PR creation → iterative CI/review resolution until merge-ready. |
-| **pr-checker** | `pr-checker.md` | Sonnet | Review and manage existing PRs - check comments, CI status, resolve review threads, monitor until all checks pass. |
+| Agent                    | File                      | Model  | Purpose                                                                                                                                                                                                    |
+| ------------------------ | ------------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **issue-analysis**       | `issue-analysis.md`       | Opus   | Deep issue analysis - comprehensive codebase exploration, implementation planning, architectural assessment, complexity evaluation. Complements automated Gemini triage with human-directed deep analysis. |
+| **issue-to-pr-resolver** | `issue-to-pr-resolver.md` | Sonnet | End-to-end issue implementation: pre-flight checks → worktree creation → implementation with tests → pre-PR checkpoint → PR creation → iterative CI/review resolution until merge-ready.                   |
+| **pr-checker**           | `pr-checker.md`           | Sonnet | Review and manage existing PRs - check comments, CI status, resolve review threads, monitor until all checks pass.                                                                                         |
 
 ## Project Overview
 
@@ -90,26 +105,27 @@ Custom agent workflows are located in `.claude/agents/`:
 
 When implementing features or debugging, consult these resources:
 
-| Resource | URL | Use For |
-|----------|-----|---------|
-| **Home Assistant REST API** | https://developers.home-assistant.io/docs/api/rest | Entity states, services, config |
-| **Home Assistant WebSocket API** | https://developers.home-assistant.io/docs/api/websocket | Real-time events, subscriptions |
-| **HA Core Source** | `gh api /search/code -f q="... repo:home-assistant/core"` | Undocumented APIs (don't clone) |
-| **HA Add-on Development** | https://developers.home-assistant.io/docs/add-ons | Add-on packaging, config.yaml |
-| **FastMCP Documentation** | https://gofastmcp.com/getting-started/welcome | MCP server framework |
-| **MCP Specification** | https://modelcontextprotocol.io/docs | Protocol details |
+| Resource                         | URL                                                       | Use For                         |
+| -------------------------------- | --------------------------------------------------------- | ------------------------------- |
+| **Home Assistant REST API**      | https://developers.home-assistant.io/docs/api/rest        | Entity states, services, config |
+| **Home Assistant WebSocket API** | https://developers.home-assistant.io/docs/api/websocket   | Real-time events, subscriptions |
+| **HA Core Source**               | `gh api /search/code -f q="... repo:home-assistant/core"` | Undocumented APIs (don't clone) |
+| **HA Add-on Development**        | https://developers.home-assistant.io/docs/add-ons         | Add-on packaging, config.yaml   |
+| **FastMCP Documentation**        | https://gofastmcp.com/getting-started/welcome             | MCP server framework            |
+| **MCP Specification**            | https://modelcontextprotocol.io/docs                      | Protocol details                |
 
 ## Issue & PR Management
 
 ### Issue Labels
-| Label | Meaning |
-|-------|---------|
-| `ready-to-implement` | Clear path, no decisions needed |
-| `needs-choice` | Multiple approaches, needs stakeholder input |
-| `needs-info` | Awaiting clarification from reporter |
-| `priority: high/medium/low` | Relative priority |
-| `triaged` | Automated Gemini triage complete |
-| `issue-analyzed` | Deep Claude analysis complete |
+
+| Label                       | Meaning                                      |
+| --------------------------- | -------------------------------------------- |
+| `ready-to-implement`        | Clear path, no decisions needed              |
+| `needs-choice`              | Multiple approaches, needs stakeholder input |
+| `needs-info`                | Awaiting clarification from reporter         |
+| `priority: high/medium/low` | Relative priority                            |
+| `triaged`                   | Automated Gemini triage complete             |
+| `issue-analyzed`            | Deep Claude analysis complete                |
 
 ### Issue Analysis Workflow
 
@@ -122,6 +138,7 @@ When implementing features or debugging, consult these resources:
 **When the user says "analyze issues" or "deep analysis":**
 
 1. **List issues needing deep analysis**:
+
    ```bash
    gh issue list --state open --json number,title,labels --jq '.[] | select(.labels | map(.name) | contains(["issue-analyzed"]) | not) | "#\(.number): \(.title)"'
    ```
@@ -129,6 +146,7 @@ When implementing features or debugging, consult these resources:
 2. **Report the list to the user** showing all issues that need deep analysis
 
 3. **Launch parallel issue-analysis agents** - one Task tool call per issue, ALL IN THE SAME MESSAGE:
+
    ```
    # In a SINGLE assistant message, make multiple Task tool calls:
    <Task tool call: subagent_type="issue-analysis", prompt="Analyze issue #42 on homeassistant-ai/ha-mcp">
@@ -153,10 +171,12 @@ When implementing features or debugging, consult these resources:
 **Always check for comments after pushing to a PR.** Comments may come from bots (Gemini Code Assist, Copilot) or humans.
 
 **Priority:**
+
 - **Human comments**: Address with highest priority
 - **Bot comments**: Treat as suggestions to assess, not commands. Evaluate if they add value.
 
 **Check for comments:**
+
 ```bash
 # Check all PR comments (general comments on the PR)
 gh pr view <PR> --json comments --jq '.comments[] | {author: .author.login, created: .createdAt}'
@@ -186,6 +206,7 @@ gh api graphql -f query='mutation($threadId: ID!) {
 ```
 
 **Why comment first:**
+
 - Provides context for future reviewers
 - Documents decision-making process
 - Makes it clear what was done or why suggestion was dismissed
@@ -193,6 +214,7 @@ gh api graphql -f query='mutation($threadId: ID!) {
 ## Git & PR Policies
 
 **Never commit directly to master.** Always create feature/fix branches:
+
 ```bash
 git checkout -b feature/description
 git add . && git commit -m "feat: description"
@@ -217,6 +239,7 @@ git add . && git commit -m "feat: description"
    ```
 5. **Check for review comments** (see "PR Review Comments" section above)
 6. **Fix any failures**:
+
    ```bash
    # View failed run logs
    gh run view <run-id> --log-failed
@@ -224,6 +247,7 @@ git add . && git commit -m "feat: description"
    # Or find the run ID from PR
    gh pr checks <PR> --json | jq '.[] | select(.conclusion == "failure") | .detailsUrl'
    ```
+
 7. **Address review comments** if any (prioritize human comments)
 8. **Repeat steps 2-7 until:**
    - ✅ All CI checks green
@@ -233,12 +257,14 @@ git add . && git commit -m "feat: description"
 ### PR Execution Philosophy
 
 **Work autonomously during PR implementation:**
+
 - Don't ask the user about every small choice or decision during implementation
 - Make reasonable technical decisions based on codebase patterns and best practices
 - Fix unrelated test failures encountered during CI (even if time-consuming)
 - Document choices for final summary
 
 **Making implementation choices:**
+
 - **DO NOT** choose based on what's faster to implement
 - **DO** consider long-term codebase health - refactoring that benefits maintainability is valid
 - **For non-obvious choices with consequences**: Create 2 mutually exclusive PRs (one for each approach) and let user choose
@@ -249,17 +275,21 @@ git add . && git commit -m "feat: description"
 Once the PR is ready (all checks green, comments addressed), provide:
 
 1. **Comment on the PR** with comprehensive details:
+
    ```markdown
    ## Implementation Summary
 
    **Choices Made:**
+
    - [List key technical decisions and rationale]
 
    **Problems Encountered:**
+
    - [Issues faced and how they were resolved]
    - [Unrelated test failures fixed (if any)]
 
    **Suggested Improvements:**
+
    - [Optional follow-up work or technical debt noted]
    ```
 
@@ -269,19 +299,23 @@ Once the PR is ready (all checks green, comments addressed), provide:
    - Current PR status
 
 **Example PR comment:**
+
 ```markdown
 ## Implementation Summary
 
 **Choices Made:**
+
 - Used context-aware recursion to preserve `conditions` in choose blocks while normalizing at root level
 - Added both unit tests (fast feedback) and E2E tests (real API validation)
 - Fixed unrelated `test_script_traces` failure by adding polling logic
 
 **Problems Encountered:**
+
 - Initial implementation incorrectly passed `in_choose_or_if` flag recursively, causing conditions inside sequence blocks to not be normalized
 - Gemini suggested logbook verification in E2E test, but manual trigger bypasses conditions - simplified to structural validation instead
 
 **Suggested Improvements:**
+
 - Consider adding integration test with actual state changes to verify choose block execution (currently only validates structure)
 ```
 
@@ -290,6 +324,7 @@ Once the PR is ready (all checks green, comments addressed), provide:
 **When you identify improvements with long-term benefit, implement them in separate PRs:**
 
 **Types of improvements to implement:**
+
 - Workflow improvements (updates to CLAUDE.md/AGENTS.md)
 - Code quality improvements (refactoring, better patterns)
 - Documentation improvements
@@ -297,6 +332,7 @@ Once the PR is ready (all checks green, comments addressed), provide:
 - Build/CI improvements
 
 **Branching strategy:**
+
 ```bash
 # Prefer branching from master when possible
 git checkout master
@@ -309,6 +345,7 @@ git checkout -b improve/description-depends-on-main-pr
 ```
 
 **Rules:**
+
 1. **Separate PR required** - never mix improvements with main feature PR
 2. **Branch from master** when possible (most improvements are independent)
 3. **Branch from PR branch** only if improvement depends on PR changes
@@ -317,6 +354,7 @@ git checkout -b improve/description-depends-on-main-pr
 6. **For `.claude/agents/` changes**: Always branch from and PR to master
 
 **Workflow:**
+
 1. Complete main PR (all checks green, comments addressed)
 2. Identify improvements during work
 3. Create separate PR(s) for improvements
@@ -324,14 +362,17 @@ git checkout -b improve/description-depends-on-main-pr
 5. Return control to user with status of all PRs
 
 **Example final comment mentioning improvements:**
+
 ```markdown
 ## Implementation Summary
 
 **Main PR (#123):**
+
 - ✅ All checks passing, ready for merge
 - Feature X implemented with tests
 
 **Improvement PRs created:**
+
 - PR #124: Update CLAUDE.md with better CI failure debugging commands
 - PR #125: Refactor common validation logic into shared utility
 
@@ -342,12 +383,14 @@ git checkout -b improve/description-depends-on-main-pr
 ### Hotfix Process (Critical Bugs Only)
 
 **When to use hotfix vs regular fix:**
+
 - **Hotfix**: Critical production bug in current stable release that needs immediate patch
 - **Regular fix**: Bug introduced after latest stable release, or non-critical fixes
 
 **Important**: Hotfix branches MUST be based on the `stable` tag. The code you're fixing must exist in stable.
 
 **Before creating a hotfix, verify the code exists in stable:**
+
 ```bash
 # Check what version stable points to
 git fetch --tags --force
@@ -358,6 +401,7 @@ git show stable:path/to/file.py | grep "buggy_code"
 ```
 
 **If the code doesn't exist in stable**, use a regular fix branch from master instead:
+
 ```bash
 # Example: jq dependency added in v5.0.0, but stable was at v4.22.1
 # → Cannot hotfix, must use regular fix branch
@@ -365,6 +409,7 @@ git checkout -b fix/description master
 ```
 
 **Creating a hotfix:**
+
 ```bash
 git checkout -b hotfix/description stable
 # Make your fix
@@ -374,6 +419,7 @@ gh pr create --base master
 
 **Hotfix workflow execution:**
 When hotfix PR merges, `hotfix-release.yml` runs:
+
 1. Validates branch is based on stable tag
 2. Runs semantic-release (creates version tag, updates CHANGELOG.md)
 3. Creates draft GitHub release
@@ -385,7 +431,7 @@ The `stable` tag is updated AFTER the changelog sync, ensuring it points to the 
 
 ### Boy Scout Rule
 
-**Principle**: "Always leave the code cleaner than you found it." — Robert C. Martin, *Clean Code*
+**Principle**: "Always leave the code cleaner than you found it." — Robert C. Martin, _Clean Code_
 
 This principle guides incremental quality improvements during implementation work. The goal is continuous, low-risk enhancement without introducing regressions.
 
@@ -397,6 +443,7 @@ This principle guides incremental quality improvements during implementation wor
 **For production code (non-test, non-docs):**
 
 Balance improvement against regression risk. Consider:
+
 - Code complexity and brittleness
 - Test coverage for the affected area
 - Scope of your current work
@@ -404,12 +451,12 @@ Balance improvement against regression risk. Consider:
 
 **Testing guidelines:**
 
-| Scenario | Action |
-|----------|--------|
-| **No tests exist for code you're touching** | Add tests for the specific behavior you're implementing/fixing, without refactoring existing code |
-| **Tests exist but coverage is low** | Add tests for gaps if you're already working in that area |
-| **Tests exist, quality is low** | Improve test quality if it's straightforward (better assertions, clearer names, remove duplication) |
-| **Code quality is really low** | Open an issue describing the technical debt instead of fixing it inline |
+| Scenario                                    | Action                                                                                              |
+| ------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| **No tests exist for code you're touching** | Add tests for the specific behavior you're implementing/fixing, without refactoring existing code   |
+| **Tests exist but coverage is low**         | Add tests for gaps if you're already working in that area                                           |
+| **Tests exist, quality is low**             | Improve test quality if it's straightforward (better assertions, clearer names, remove duplication) |
+| **Code quality is really low**              | Open an issue describing the technical debt instead of fixing it inline                             |
 
 **Examples:**
 
@@ -450,20 +497,21 @@ NEW: "Create a helper entity (input_boolean, counter, etc.) with the specified c
 
 ## CI/CD Workflows
 
-| Workflow | Trigger | Purpose |
-|----------|---------|---------|
-| `pr.yml` | PR opened | Lint, type check |
-| `e2e-tests.yml` | PR to master | Full E2E tests (~3 min) |
-| `publish-dev.yml` | Push to master | Dev release `.devN` |
+| Workflow                 | Trigger               | Purpose                                             |
+| ------------------------ | --------------------- | --------------------------------------------------- |
+| `pr.yml`                 | PR opened             | Lint, type check                                    |
+| `e2e-tests.yml`          | PR to master          | Full E2E tests (~3 min)                             |
+| `publish-dev.yml`        | Push to master        | Dev release `.devN`                                 |
 | `notify-dev-channel.yml` | Push to master (src/) | Comment on PRs/issues with dev testing instructions |
-| `semver-release.yml` | Weekly Tue 10:00 UTC | Stable release |
-| `hotfix-release.yml` | Hotfix PR merged | Immediate patch release |
-| `build-binary.yml` | Release | Linux/macOS/Windows binaries |
-| `addon-publish.yml` | Release | HA add-on update |
+| `semver-release.yml`     | Weekly Tue 10:00 UTC  | Stable release                                      |
+| `hotfix-release.yml`     | Hotfix PR merged      | Immediate patch release                             |
+| `build-binary.yml`       | Release               | Linux/macOS/Windows binaries                        |
+| `addon-publish.yml`      | Release               | HA add-on update                                    |
 
 ## Development Commands
 
 ### Setup
+
 ```bash
 uv sync --group dev        # Install with dev dependencies
 uv run ha-mcp              # Run MCP server (80+ tools)
@@ -471,6 +519,7 @@ cp .env.example .env       # Configure HA connection
 ```
 
 ### Testing
+
 E2E tests are in `tests/src/e2e/` (not `tests/e2e/`).
 
 ```bash
@@ -488,12 +537,14 @@ uv run hamcp-test-env --no-interactive   # For automation
 Test token centralized in `tests/test_constants.py`.
 
 ### Code Quality
+
 ```bash
 uv run ruff check src/ tests/ --fix
 uv run mypy src/
 ```
 
 ### Docker
+
 ```bash
 # Stdio mode (Claude Desktop)
 docker run --rm -i -e HOMEASSISTANT_URL=... -e HOMEASSISTANT_TOKEN=... ghcr.io/homeassistant-ai/ha-mcp:latest
@@ -544,7 +595,9 @@ src/ha_mcp/
 ## Writing MCP Tools
 
 ### Naming Convention
+
 `ha_<verb>_<noun>`:
+
 - `get` — single item (`ha_get_state`)
 - `list` — collections (`ha_list_areas`)
 - `search` — filtered queries (`ha_search_entities`)
@@ -553,6 +606,7 @@ src/ha_mcp/
 - `call` — execute (`ha_call_service`)
 
 ### Tool Structure
+
 Create `tools_<domain>.py` in `src/ha_mcp/tools/`. Registry auto-discovers it.
 
 ```python
@@ -565,14 +619,17 @@ def register_<domain>_tools(mcp, client, **kwargs):
 ```
 
 ### Safety Annotations
-| Annotation | Use For |
-|------------|---------|
-| `readOnlyHint: True` | No side effects |
-| `idempotentHint: True` | Safe to retry |
-| `destructiveHint: True` | Deletes data |
+
+| Annotation              | Use For         |
+| ----------------------- | --------------- |
+| `readOnlyHint: True`    | No side effects |
+| `idempotentHint: True`  | Safe to retry   |
+| `destructiveHint: True` | Deletes data    |
 
 ### Error Handling
+
 Use structured errors from `errors.py`:
+
 ```python
 from ..errors import create_error_response, ErrorCode
 return create_error_response(
@@ -583,6 +640,7 @@ return create_error_response(
 ```
 
 ### Return Values
+
 ```python
 {"success": True, "data": result}                    # Success
 {"success": True, "partial": True, "warning": "..."}  # Degraded
@@ -590,6 +648,7 @@ return create_error_response(
 ```
 
 ### Tool Consolidation
+
 When a tool's functionality is fully covered by another tool, **remove** the redundant tool rather than deprecating it. Fewer tools reduces cognitive load for AI agents and improves decision-making. Do not add deprecation notices or shims — just delete the tool and update any docstring references to point to the replacement.
 
 ## Tool Waiting Behavior
@@ -611,6 +670,7 @@ await _verify_all_created(entity_ids)  # Batch verification
 ```
 
 **Tool Categories**:
+
 - **Config ops** (automations, helpers, scripts): MUST wait by default
 - **Service calls** (lights, switches): SHOULD wait for state change
 - **Async ops** (automation triggers, external integrations): Return immediately, users poll
@@ -627,6 +687,7 @@ This project applies [context engineering](https://www.anthropic.com/engineering
 Context engineering treats LLM context as a finite resource with diminishing returns. Rather than front-loading all information, provide the minimum context needed and let the model fetch more when required.
 
 **Guiding principles:**
+
 - **Favor statelessness** — Avoid server-side session tracking or MCP-side state when possible. Use content-derived identifiers (hashes, IDs) that the client can pass back. Example: dashboard updates use content hashing for optimistic locking—hash is computed on read, verified on write to detect conflicts, no session state needed.
 - Delegate validation to backend systems when they already handle it well (HA Core uses voluptuous schemas with clear error messages)
 - Keep tool parameters simple—let the backend API handle type coercion, defaults, and validation
@@ -634,6 +695,7 @@ Context engineering treats LLM context as a finite resource with diminishing ret
 - Trust that model knowledge + on-demand docs = sufficient context
 
 **Example - pass-through approach:**
+
 ```python
 # Let HA validate and return its own error messages
 message = {"type": f"{helper_type}/create", "name": name}
@@ -644,6 +706,7 @@ result = await client.send_websocket_message(message)
 ```
 
 **When tool-side logic adds value:**
+
 - Format normalization for UX convenience (e.g., `"09:00"` → `"09:00:00"`)
 - Parsing JSON strings from MCP clients that stringify arrays
 - Combining multiple HA API calls into one logical operation
@@ -654,15 +717,16 @@ result = await client.send_websocket_message(message)
 
 **How we apply this in ha-mcp:**
 
-| Pattern | Example |
-|---------|---------|
-| **Docs on demand** | Tool descriptions reference `ha_get_domain_docs()` instead of embedding full documentation |
-| **Hints in UX flow** | First tool in a workflow hints at related tools (e.g., `ha_search_entities` suggests `ha_get_state`) |
-| **Error-driven discovery** | When a tool fails, the error response hints at `ha_get_domain_docs()` for syntax help |
-| **Layered parameters** | Required params first, optional params with sensible defaults |
-| **Focused returns** | Return essential data; let user request details via follow-up tools |
+| Pattern                    | Example                                                                                              |
+| -------------------------- | ---------------------------------------------------------------------------------------------------- |
+| **Docs on demand**         | Tool descriptions reference `ha_get_domain_docs()` instead of embedding full documentation           |
+| **Hints in UX flow**       | First tool in a workflow hints at related tools (e.g., `ha_search_entities` suggests `ha_get_state`) |
+| **Error-driven discovery** | When a tool fails, the error response hints at `ha_get_domain_docs()` for syntax help                |
+| **Layered parameters**     | Required params first, optional params with sensible defaults                                        |
+| **Focused returns**        | Return essential data; let user request details via follow-up tools                                  |
 
 **Practical examples in this codebase:**
+
 - `ha_config_set_helper` has minimal docstring, points to `ha_get_domain_docs()` for each helper type
 - Search tools return entity IDs and names; full state requires `ha_get_state`
 - Error responses include `suggestions` array guiding next steps
@@ -680,11 +744,13 @@ Task tool with model=haiku or model=sonnet:
 ```
 
 This reveals:
+
 - What the model knows from training (no need to document)
 - What gaps exist (target these with `ha_get_domain_docs()` hints)
 - Confidence levels across model tiers (haiku vs sonnet vs opus)
 
 **Important: Fact-check model claims.** Models can hallucinate plausible-sounding syntax. Always verify against actual source code or documentation:
+
 ```bash
 # Check HA Core for actual API schema
 gh api /repos/home-assistant/core/contents/homeassistant/components/{domain}/__init__.py \
@@ -700,6 +766,7 @@ gh api /repos/home-assistant/core/contents/homeassistant/components/{domain}/__i
 This informs whether to embed docs (low model knowledge) or just hint at `ha_get_domain_docs()` (sufficient model knowledge).
 
 ### References
+
 - [Anthropic: Effective Context Engineering](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents)
 - [Context Engineering Guide](https://www.promptingguide.ai/guides/context-engineering-guide)
 - [Nielsen Norman Group: Progressive Disclosure](https://www.nngroup.com/articles/progressive-disclosure/)
@@ -708,6 +775,7 @@ This informs whether to embed docs (low model knowledge) or just hint at `ha_get
 ## Home Assistant Add-on
 
 **Required files:**
+
 - `repository.yaml` (root) - For HA add-on store recognition
 - `homeassistant-addon/config.yaml` - Must match `pyproject.toml` version
 
@@ -716,6 +784,7 @@ This informs whether to embed docs (low model knowledge) or just hint at `ha_get
 ## API Research
 
 Search HA Core without cloning (500MB+ repo):
+
 ```bash
 # Search for patterns
 gh search code "use_blueprint" --repo home-assistant/core path:tests --json path --limit 10
@@ -730,6 +799,7 @@ gh api /repos/home-assistant/core/contents/homeassistant/components/automation/c
 ## Test Patterns
 
 **FastMCP validates required params at schema level.** Don't test for missing required params:
+
 ```python
 # BAD: Fails at schema validation
 await mcp.call_tool("ha_config_get_script", {})
@@ -744,25 +814,26 @@ await mcp.call_tool("ha_config_get_script", {"script_id": "nonexistent"})
 
 Uses [semantic-release](https://python-semantic-release.readthedocs.io/) with conventional commits.
 
-| Prefix | Bump | Changelog |
-|--------|------|-----------|
-| `fix:`, `perf:`, `refactor:` | Patch | User-facing |
-| `feat:` | Minor | User-facing |
-| `feat!:` or `BREAKING CHANGE:` | Major | User-facing |
-| `chore:`, `ci:`, `test:` | No release | Internal |
-| `docs:` | No release | User-facing |
-| `*:(internal)` | Same as type | Internal |
+| Prefix                         | Bump         | Changelog   |
+| ------------------------------ | ------------ | ----------- |
+| `fix:`, `perf:`, `refactor:`   | Patch        | User-facing |
+| `feat:`                        | Minor        | User-facing |
+| `feat!:` or `BREAKING CHANGE:` | Major        | User-facing |
+| `chore:`, `ci:`, `test:`       | No release   | Internal    |
+| `docs:`                        | No release   | User-facing |
+| `*:(internal)`                 | Same as type | Internal    |
 
 **Use `(internal)` scope** for changes that aren't user-facing:
+
 ```bash
 feat(internal): Log package version on startup  # Internal, not in user changelog
 feat: Add dark mode                             # User-facing
 ```
 
-| Channel | When Updated |
-|---------|--------------|
-| Dev (`.devN`) | Every master commit |
-| Stable | Weekly (Tuesday 10:00 UTC) |
+| Channel       | When Updated               |
+| ------------- | -------------------------- |
+| Dev (`.devN`) | Every master commit        |
+| Stable        | Weekly (Tuesday 10:00 UTC) |
 
 Manual release: Actions > SemVer Release > Run workflow.
 
@@ -770,15 +841,16 @@ Manual release: Actions > SemVer Release > Run workflow.
 
 Located in `.claude/agents/`:
 
-| Agent | Purpose |
-|-------|---------|
-| `issue-analysis` | Deep issue analysis: codebase exploration, implementation planning, complexity assessment |
-| `issue-to-pr-resolver` | End-to-end: issue → branch → implement → PR → CI green |
-| `pr-checker` | Review PR comments, resolve threads, monitor CI |
+| Agent                  | Purpose                                                                                   |
+| ---------------------- | ----------------------------------------------------------------------------------------- |
+| `issue-analysis`       | Deep issue analysis: codebase exploration, implementation planning, complexity assessment |
+| `issue-to-pr-resolver` | End-to-end: issue → branch → implement → PR → CI green                                    |
+| `pr-checker`           | Review PR comments, resolve threads, monitor CI                                           |
 
 ## Documentation Updates
 
 Update this file when:
+
 - Discovering workflow improvements
 - Solving non-obvious problems
 - API/test patterns learned

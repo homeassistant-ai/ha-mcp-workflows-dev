@@ -1,7 +1,13 @@
+> [!IMPORTANT]
+> This repository is the workflow-development bench for
+> [`homeassistant-ai/ha-mcp`](https://github.com/homeassistant-ai/ha-mcp), not
+> the canonical product repository. Its open issues and pull requests may be
+> curated fixtures. See the [generic Codex action](.github/actions/codex-run/README.md).
+
 <div align="center">
   <img src="docs/img/ha-mcp-logo.png" alt="Home Assistant MCP Server Logo" width="300"/>
 
-  # The Unofficial and Awesome Home Assistant MCP Server
+# The Unofficial and Awesome Home Assistant MCP Server
 
   <!-- mcp-name: io.github.homeassistant-ai/ha-mcp -->
 
@@ -33,7 +39,7 @@
 
 ### Full guide to get you started with Claude Desktop (~10 min)
 
-*No paid subscription required.* Click on your operating system:
+_No paid subscription required._ Click on your operating system:
 
 <p>
 <a href="https://homeassistant-ai.github.io/ha-mcp/guide-macos/"><img src="https://img.shields.io/badge/Setup_Guide_for_macOS-000000?style=for-the-badge&logo=apple&logoColor=white" alt="Setup Guide for macOS" height="120"></a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://homeassistant-ai.github.io/ha-mcp/guide-windows/"><img src="https://img.shields.io/badge/Setup_Guide_for_Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white" alt="Setup Guide for Windows" height="120"></a>
@@ -87,13 +93,13 @@ Having issues? Check the **[FAQ & Troubleshooting](https://homeassistant-ai.gith
 
 Just talk to Claude naturally. Here are some real examples:
 
-| You Say | What Happens |
-|---------|--------------|
-| *"Create an automation that turns on the porch light at sunset"* | Creates the automation with proper triggers and actions |
-| *"Add a weather card to my dashboard"* | Updates your Lovelace dashboard with the new card |
-| *"The motion sensor automation isn't working, debug it"* | Analyzes execution traces, identifies the issue, suggests fixes |
-| *"Make my morning routine automation also turn on the coffee maker"* | Reads the existing automation, adds the new action, updates it |
-| *"Create a script that sets movie mode: dim lights, close blinds, turn on TV"* | Creates a reusable script with the sequence of actions |
+| You Say                                                                        | What Happens                                                    |
+| ------------------------------------------------------------------------------ | --------------------------------------------------------------- |
+| _"Create an automation that turns on the porch light at sunset"_               | Creates the automation with proper triggers and actions         |
+| _"Add a weather card to my dashboard"_                                         | Updates your Lovelace dashboard with the new card               |
+| _"The motion sensor automation isn't working, debug it"_                       | Analyzes execution traces, identifies the issue, suggests fixes |
+| _"Make my morning routine automation also turn on the coffee maker"_           | Reads the existing automation, adds the new action, updates it  |
+| _"Create a script that sets movie mode: dim lights, close blinds, turn on TV"_ | Creates a reusable script with the sequence of actions          |
 
 Spend less time configuring, more time enjoying your smart home.
 
@@ -101,41 +107,41 @@ Spend less time configuring, more time enjoying your smart home.
 
 ## ✨ Features
 
-| Category | Capabilities |
-|----------|--------------|
-| **🔍 Search** | Fuzzy entity search, deep config search, system overview |
-| **🏠 Control** | Any service, bulk device control, real-time states |
-| **🔧 Manage** | Automations, scripts, helpers, dashboards, areas, zones, groups, calendars, blueprints |
-| **📊 Monitor** | History, statistics, camera snapshots, automation traces, ZHA devices |
-| **💾 System** | Backup/restore, updates, add-ons, device registry |
+| Category       | Capabilities                                                                           |
+| -------------- | -------------------------------------------------------------------------------------- |
+| **🔍 Search**  | Fuzzy entity search, deep config search, system overview                               |
+| **🏠 Control** | Any service, bulk device control, real-time states                                     |
+| **🔧 Manage**  | Automations, scripts, helpers, dashboards, areas, zones, groups, calendars, blueprints |
+| **📊 Monitor** | History, statistics, camera snapshots, automation traces, ZHA devices                  |
+| **💾 System**  | Backup/restore, updates, add-ons, device registry                                      |
 
 <details>
 <summary><b>🛠️ Complete Tool List (97 tools)</b></summary>
 
-| Category | Tools |
-|----------|-------|
-| **Search & Discovery** | `ha_search_entities`, `ha_deep_search`, `ha_get_overview`, `ha_get_state` |
-| **Service & Device Control** | `ha_call_service`, `ha_bulk_control`, `ha_get_operation_status`, `ha_get_bulk_status`, `ha_list_services` |
-| **Automations** | `ha_config_get_automation`, `ha_config_set_automation`, `ha_config_remove_automation` |
-| **Scripts** | `ha_config_get_script`, `ha_config_set_script`, `ha_config_remove_script` |
-| **Helper Entities** | `ha_config_list_helpers`, `ha_config_set_helper`, `ha_config_remove_helper` |
-| **Dashboards** | `ha_config_get_dashboard`, `ha_config_set_dashboard`, `ha_config_update_dashboard_metadata`, `ha_config_delete_dashboard`, `ha_get_dashboard_guide`, `ha_get_card_types`, `ha_get_card_documentation` |
-| **Areas & Floors** | `ha_config_list_areas`, `ha_config_set_area`, `ha_config_remove_area`, `ha_config_list_floors`, `ha_config_set_floor`, `ha_config_remove_floor` |
-| **Labels** | `ha_config_get_label`, `ha_config_set_label`, `ha_config_remove_label`, `ha_manage_entity_labels` |
-| **Zones** | `ha_get_zone`, `ha_create_zone`, `ha_update_zone`, `ha_delete_zone` |
-| **Groups** | `ha_config_list_groups`, `ha_config_set_group`, `ha_config_remove_group` |
-| **Todo Lists** | `ha_get_todo`, `ha_add_todo_item`, `ha_update_todo_item`, `ha_remove_todo_item` |
-| **Calendar** | `ha_config_get_calendar_events`, `ha_config_set_calendar_event`, `ha_config_remove_calendar_event` |
-| **Blueprints** | `ha_list_blueprints`, `ha_get_blueprint`, `ha_import_blueprint` |
-| **Device Registry** | `ha_get_device`, `ha_update_device`, `ha_remove_device`, `ha_rename_entity` |
-| **ZHA & Integrations** | `ha_get_zha_devices`, `ha_get_entity_integration_source` |
-| **Add-ons** | `ha_get_addon` |
-| **Camera** | `ha_get_camera_image` |
-| **History & Statistics** | `ha_get_history`, `ha_get_statistics` |
-| **Automation Traces** | `ha_get_automation_traces` |
-| **System & Updates** | `ha_check_config`, `ha_restart`, `ha_reload_core`, `ha_get_system_info`, `ha_get_system_health`, `ha_get_updates` |
-| **Backup & Restore** | `ha_backup_create`, `ha_backup_restore` |
-| **Utility** | `ha_get_logbook`, `ha_eval_template`, `ha_get_domain_docs`, `ha_get_integration` |
+| Category                     | Tools                                                                                                                                                                                                 |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Search & Discovery**       | `ha_search_entities`, `ha_deep_search`, `ha_get_overview`, `ha_get_state`                                                                                                                             |
+| **Service & Device Control** | `ha_call_service`, `ha_bulk_control`, `ha_get_operation_status`, `ha_get_bulk_status`, `ha_list_services`                                                                                             |
+| **Automations**              | `ha_config_get_automation`, `ha_config_set_automation`, `ha_config_remove_automation`                                                                                                                 |
+| **Scripts**                  | `ha_config_get_script`, `ha_config_set_script`, `ha_config_remove_script`                                                                                                                             |
+| **Helper Entities**          | `ha_config_list_helpers`, `ha_config_set_helper`, `ha_config_remove_helper`                                                                                                                           |
+| **Dashboards**               | `ha_config_get_dashboard`, `ha_config_set_dashboard`, `ha_config_update_dashboard_metadata`, `ha_config_delete_dashboard`, `ha_get_dashboard_guide`, `ha_get_card_types`, `ha_get_card_documentation` |
+| **Areas & Floors**           | `ha_config_list_areas`, `ha_config_set_area`, `ha_config_remove_area`, `ha_config_list_floors`, `ha_config_set_floor`, `ha_config_remove_floor`                                                       |
+| **Labels**                   | `ha_config_get_label`, `ha_config_set_label`, `ha_config_remove_label`, `ha_manage_entity_labels`                                                                                                     |
+| **Zones**                    | `ha_get_zone`, `ha_create_zone`, `ha_update_zone`, `ha_delete_zone`                                                                                                                                   |
+| **Groups**                   | `ha_config_list_groups`, `ha_config_set_group`, `ha_config_remove_group`                                                                                                                              |
+| **Todo Lists**               | `ha_get_todo`, `ha_add_todo_item`, `ha_update_todo_item`, `ha_remove_todo_item`                                                                                                                       |
+| **Calendar**                 | `ha_config_get_calendar_events`, `ha_config_set_calendar_event`, `ha_config_remove_calendar_event`                                                                                                    |
+| **Blueprints**               | `ha_list_blueprints`, `ha_get_blueprint`, `ha_import_blueprint`                                                                                                                                       |
+| **Device Registry**          | `ha_get_device`, `ha_update_device`, `ha_remove_device`, `ha_rename_entity`                                                                                                                           |
+| **ZHA & Integrations**       | `ha_get_zha_devices`, `ha_get_entity_integration_source`                                                                                                                                              |
+| **Add-ons**                  | `ha_get_addon`                                                                                                                                                                                        |
+| **Camera**                   | `ha_get_camera_image`                                                                                                                                                                                 |
+| **History & Statistics**     | `ha_get_history`, `ha_get_statistics`                                                                                                                                                                 |
+| **Automation Traces**        | `ha_get_automation_traces`                                                                                                                                                                            |
+| **System & Updates**         | `ha_check_config`, `ha_restart`, `ha_reload_core`, `ha_get_system_info`, `ha_get_system_health`, `ha_get_updates`                                                                                     |
+| **Backup & Restore**         | `ha_backup_create`, `ha_backup_restore`                                                                                                                                                               |
+| **Utility**                  | `ha_get_logbook`, `ha_eval_template`, `ha_get_domain_docs`, `ha_get_integration`                                                                                                                      |
 
 </details>
 
@@ -145,7 +151,7 @@ Spend less time configuring, more time enjoying your smart home.
 
 This server gives your AI agent tools to control Home Assistant. For better configurations, pair it with [Home Assistant Agent Skills](https://github.com/homeassistant-ai/skills) — domain knowledge that teaches the agent Home Assistant best practices.
 
-An MCP server can create automations, helpers, and dashboards, but it has no opinion on *how* to structure them. Without domain knowledge, agents tend to over-rely on templates, pick the wrong helper type, or produce automations that are hard to maintain. The skills fill that gap: native constructs over Jinja2 workarounds, correct helper selection, safe refactoring workflows, and proper use of automation modes.
+An MCP server can create automations, helpers, and dashboards, but it has no opinion on _how_ to structure them. Without domain knowledge, agents tend to over-rely on templates, pick the wrong helper type, or produce automations that are hard to maintain. The skills fill that gap: native constructs over Jinja2 workarounds, correct helper selection, safe refactoring workflows, and proper use of automation modes.
 
 ---
 

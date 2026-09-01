@@ -78,3 +78,20 @@ Only use Codex authentication with trusted workflow events and trusted
 instructions. Do not expose `CODEX_AUTH` to workflows that execute untrusted
 fork code. Workflows sharing one auth secret should use the same non-cancelling
 `concurrency` group so two jobs cannot refresh the same token simultaneously.
+
+## Validated examples
+
+Validated on 2026-08-31 with Codex CLI `0.151.0`:
+
+- [Hello World run 33456749953](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/33456749953)
+  passed the verbatim instruction assertion and forced a `CODEX_AUTH` rewrite
+  through the repository-scoped secret-writer PAT.
+- [Issue review run 33457247937](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/33457247937)
+  analyzed fixtures `#62`–`#65`, including the deliberate `#62/#63` duplicate,
+  from caller-collected JSON and the checked-out code.
+- [Pull-request review run 33457368126](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/33457368126)
+  analyzed fixtures `#66`–`#68` from caller-collected metadata and patches.
+
+The review workflows write only to the Actions log and step summary. Hosted
+ChatGPT connectors remain disabled, so repository visibility is bounded by the
+context that the caller collects with its declared GitHub permissions.
