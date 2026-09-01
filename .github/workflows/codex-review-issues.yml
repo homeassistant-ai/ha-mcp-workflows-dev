@@ -30,10 +30,11 @@ jobs:
           codex-auth: ${{ secrets.CODEX_AUTH }}
           sandbox: read-only
           instructions: |
-            Review the open issues in this repository. Use gh to inspect their
-            titles, bodies, labels and comments. Identify likely duplicates,
-            missing information, plausible root causes, and concrete fix or
-            triage suggestions. Compare issues against the checked-out code when
+            Review the open issues in this repository that carry the
+            workflow-fixture label. Use gh to inspect their titles, bodies,
+            labels and comments. Identify likely duplicates, missing
+            information, plausible root causes, and concrete fix or triage
+            suggestions. Compare issues against the checked-out code when
             useful. Do not create, edit, label, close or comment on anything.
             Return a concise Markdown report in the final response.
 

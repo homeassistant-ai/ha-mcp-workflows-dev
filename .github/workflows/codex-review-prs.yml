@@ -34,12 +34,13 @@ jobs:
           codex-auth: ${{ secrets.CODEX_AUTH }}
           sandbox: read-only
           instructions: |
-            Review the open pull requests in this repository. Use gh to inspect
-            each PR's description, diff, draft state, reviews, requested
-            reviewers, checks and mergeability. Summarize current status,
-            important risks, likely blockers, and the best next action for each
-            PR. Do not review, approve, comment, merge, close or modify anything.
-            Return a concise Markdown report in the final response.
+            Review the open pull requests in this repository that carry the
+            workflow-fixture label. Use gh to inspect each PR's description,
+            diff, draft state, reviews, requested reviewers, checks and
+            mergeability. Summarize current status, important risks, likely
+            blockers, and the best next action for each PR. Do not review,
+            approve, comment, merge, close or modify anything. Return a concise
+            Markdown report in the final response.
 
       - name: Persist refreshed Codex auth
         if: ${{ always() }}
