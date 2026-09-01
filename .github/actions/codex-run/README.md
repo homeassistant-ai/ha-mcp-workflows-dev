@@ -24,6 +24,12 @@ once without overwriting an earlier result or auth snapshot. The invocation
 timeout should remain shorter than the caller's job timeout, leaving time for
 the separate auth-persistence step.
 
+Model-executed commands inherit only Codex's `core` shell environment. A named
+filesystem permission profile masks both `CODEX_HOME` and the original auth
+snapshot, and the action probes those paths through `codex sandbox` before it
+runs the agent. This keeps authentication unavailable even when a trusted
+caller enables the shell.
+
 When the caller also supplies a repository-scoped token with `Secrets: write`,
 it can invoke the separate `codex-update-auth` action under `if: always()` to
 persist a refreshed `auth.json`. Keeping this step separate prevents ordinary
@@ -39,7 +45,7 @@ jobs:
   analyze:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
       - uses: ./.github/actions/codex-run
@@ -64,7 +70,7 @@ jobs:
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
       - uses: ./.github/actions/codex-run
