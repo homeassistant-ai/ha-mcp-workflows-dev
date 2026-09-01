@@ -147,7 +147,37 @@ runs:
         echo "codex-version=$installed" >> "$GITHUB_OUTPUT"
         echo "Using Codex CLI $installed"
 
+    - name: Prepare Bubblewrap sandbox on Ubuntu
+      if: ${{ runner.os == 'Linux' }}
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        sudo apt-get update --quiet
+        sudo apt-get install --yes --no-install-recommends \
+          apparmor-profiles \
+          apparmor-utils \
+          bubblewrap
+
+        profile_source=/usr/share/apparmor/extra-profiles/bwrap-userns-restrict
+        profile_target=/etc/apparmor.d/bwrap-userns-restrict
+        if [[ -f "$profile_source" ]]; then
+          sudo install -m 0644 "$profile_source" "$profile_target"
+          if sudo apparmor_parser -r "$profile_target"; then
+            echo "Loaded the Bubblewrap AppArmor profile."
+          else
+            echo "::warning::Could not load the Bubblewrap AppArmor profile; using the sysctl fallback."
+            sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+          fi
+        elif [[ "$(sysctl -n kernel.apparmor_restrict_unprivileged_userns 2>/dev/null || true)" == "1" ]]; then
+          echo "::warning::Bubblewrap AppArmor profile unavailable; using the sysctl fallback."
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+        fi
+
+        bwrap --version
+
     - id: agent
+      name: Run Codex
       shell: bash
       env:
         INSTRUCTIONS_INPUT: ${{ inputs.instructions }}
