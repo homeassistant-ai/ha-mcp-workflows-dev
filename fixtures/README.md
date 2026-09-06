@@ -67,6 +67,9 @@ only the action README differs from the earlier smoke revision. The
 also passed using its own account. Local negative checks rejected omitted
 fixtures, missed duplicates and incorrect draft states. YAML parsing and Ruff
 passed. No canary, production comments or product releases were introduced.
+The [final bench smoke](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/34003522484)
+then passed against `b514515c361f55aaca7e29fe621773be845559d6` as well, including
+forced auth persistence. All three model scenarios therefore cover that SHA.
 
 The initial runner failure came from an older uv version missing the Windows
 lockfile's relative cooldown setting. The script now declares that setting and
