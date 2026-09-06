@@ -1,6 +1,8 @@
 # /// script
 # requires-python = ">=3.13"
 # dependencies = []
+# [tool.uv]
+# exclude-newer = "7 days"
 # ///
 """Restore the curated bench fixtures or validate a structured model report."""
 

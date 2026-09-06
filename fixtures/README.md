@@ -27,6 +27,8 @@ items/branches require manual recreation from the manifest and an explicit
 manifest-number update; it never guesses a replacement or merges/deletes PRs.
 Run from this repository with `gh` authenticated to the bench. A manual
 `reset-fixtures.yml` provides the same reset on GitHub.
+The standalone script declares its seven-day dependency cooldown and uses uv
+`0.12.5` on the runner, matching the lockfile's relative cooldown support.
 
 ## Validation
 

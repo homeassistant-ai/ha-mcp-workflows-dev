@@ -51,7 +51,7 @@ jobs:
 
       - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
         with:
-          version: "0.11.6"
+          version: "0.12.5"
 
       - name: Verify fixtures match the manifest
         env:
@@ -180,7 +180,7 @@ jobs:
         run: uv run --locked -s scripts/fixtures.py verify-report --kind pr --report "$OUTPUT_PATH"
 
       - name: Persist refreshed Codex auth
-        if: ${{ always() }}
+        if: ${{ always() && steps.codex.outputs.auth-path != '' }}
         uses: ./.test-subject/.github/actions/codex-update-auth
         with:
           codex-auth-path: ${{ steps.codex.outputs.auth-path }}
