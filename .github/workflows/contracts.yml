@@ -1,0 +1,56 @@
+name: Codex workflow regression contracts
+on:
+  workflow_dispatch:
+    inputs:
+      action-ref:
+        description: Trusted full commit SHA of the canonical ha-mcp actions and workflows.
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      UV_EXCLUDE_NEWER: 7 days
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        timeout-minutes: 2
+        with:
+          persist-credentials: false
+      - name: Prepare canonical source
+        timeout-minutes: 3
+        uses: ./.github/actions/prepare-subject
+        with:
+          action-ref: ${{ inputs.action-ref }}
+      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        timeout-minutes: 3
+        with:
+          version: "0.12.5"
+      - name: Exercise canonical workflow regressions
+        timeout-minutes: 3
+        run: |
+          uv run --no-project --with pytest --with pyyaml pytest --noconftest -c /dev/null \
+            .test-subject/tests/src/unit/test_codex_workflow_contracts.py -q
+      - name: Simulate invocation step expiry
+        id: expiry
+        timeout-minutes: 1
+        continue-on-error: true
+        uses: ./.github/actions/timeout-fixture
+      - name: Verify cleanup remains reachable with published output paths
+        if: ${{ always() }}
+        timeout-minutes: 1
+        env:
+          OUTCOME: ${{ steps.expiry.outcome }}
+          AUTH_PATH: ${{ steps.expiry.outputs.auth-path }}
+          ORIGINAL_PATH: ${{ steps.expiry.outputs.original-auth-path }}
+        run: |
+          set -euo pipefail
+          [[ "$OUTCOME" == failure ]]
+          [[ -f "$AUTH_PATH" && -f "$ORIGINAL_PATH" ]]
+          [[ "$(cat "$AUTH_PATH")" == rotated-fixture ]]
+          [[ "$(cat "$ORIGINAL_PATH")" == original-fixture ]]
+          cp "$AUTH_PATH" "$RUNNER_TEMP/persisted-fixture"
+          cmp -s "$AUTH_PATH" "$RUNNER_TEMP/persisted-fixture"
+          echo 'Timed-out composite retained its outputs; cleanup persisted the synthetic rotation.'

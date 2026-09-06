@@ -6,7 +6,7 @@ on:
       action-ref:
         description: Trusted full commit SHA of the canonical ha-mcp actions.
         required: true
-        default: "b514515c361f55aaca7e29fe621773be845559d6"
+        default: "d555ca0fc1a0fc2febf0648b9d92a194fe5b85d3"
         type: string
       model:
         description: Explicit Codex model to test.
@@ -31,30 +31,35 @@ concurrency:
 jobs:
   review-issues:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 45
     env:
       ITEM_LIMIT: ${{ inputs.limit }}
     steps:
       - name: Checkout
+        timeout-minutes: 2
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
 
       - name: Prepare canonical actions
+        timeout-minutes: 5
         uses: ./.github/actions/prepare-subject
         with:
           action-ref: ${{ inputs.action-ref }}
 
       - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        timeout-minutes: 3
         with:
           version: "0.12.5"
 
       - name: Verify fixtures match the manifest
+        timeout-minutes: 3
         env:
           GH_TOKEN: ${{ github.token }}
         run: uv run --locked -s scripts/fixtures.py check --kind issue
 
       - name: Collect authorized issue context
+        timeout-minutes: 5
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -87,6 +92,7 @@ jobs:
           } > .codex-context/issue-review-prompt.txt
 
       - name: Ask Codex to review open issues
+        timeout-minutes: 18
         id: codex
         uses: ./.test-subject/.github/actions/codex-run
         with:
@@ -100,11 +106,13 @@ jobs:
           instructions-file: .codex-context/issue-review-prompt.txt
 
       - name: Verify report against fixture expectations
+        timeout-minutes: 1
         env:
           OUTPUT_PATH: ${{ steps.codex.outputs.output-path }}
         run: uv run --locked -s scripts/fixtures.py verify-report --kind issue --report "$OUTPUT_PATH"
 
       - name: Persist refreshed Codex auth
+        timeout-minutes: 3
         if: ${{ always() && steps.codex.outputs.auth-path != '' }}
         uses: ./.test-subject/.github/actions/codex-update-auth
         with:

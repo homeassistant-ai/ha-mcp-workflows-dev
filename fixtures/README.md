@@ -32,7 +32,7 @@ The standalone script declares its seven-day dependency cooldown and uses uv
 
 ## Validation
 
-Run `test.yml`, `codex-review-issues.yml` and `codex-review-prs.yml` against the
+Run `contracts.yml`, `test.yml`, `codex-review-issues.yml` and `codex-review-prs.yml` against the
 same immutable action SHA. The smoke checks credential isolation directly with
 `codex sandbox`, an allowed model shell call, byte-exact output and forced auth
 persistence. Report runs
@@ -40,6 +40,13 @@ disable shell, gather only labeled fixtures and validate structured output:
 every fixture exactly once, the deliberate duplicate pair and PR draft states.
 The findings remain visible in logs/summaries. These assertions check specific
 facts; they do not guarantee the quality of every recommendation.
+
+The contract workflow executes the canonical regression tests (timeout budgets,
+early Ubuntu-only rejection, UTF-8 boundaries and nested comment pagination).
+It also times out a synthetic composite action after one minute and verifies
+that cleanup can still consume its published fake-auth paths. It uses no OAuth
+secrets and never writes an Actions secret. Report jobs bound every step and
+reserve three minutes for persistence inside a 45-minute overall budget.
 
 Inherited release, issue-triage and issue-auto-close workflows must stay disabled
 so they cannot mutate the scenarios. `CODEX_AUTH` and `CODEX_AUTH_PAT` belong to

@@ -6,7 +6,7 @@ on:
       action-ref:
         description: Trusted full commit SHA of the canonical ha-mcp actions.
         required: true
-        default: "b514515c361f55aaca7e29fe621773be845559d6"
+        default: "d555ca0fc1a0fc2febf0648b9d92a194fe5b85d3"
         type: string
       model:
         description: Explicit Codex model to test.
@@ -25,19 +25,22 @@ concurrency:
 jobs:
   hello-world:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 30
     steps:
       - name: Checkout
+        timeout-minutes: 2
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
 
       - name: Prepare canonical actions
+        timeout-minutes: 5
         uses: ./.github/actions/prepare-subject
         with:
           action-ref: ${{ inputs.action-ref }}
 
       - name: Run arbitrary instructions
+        timeout-minutes: 18
         id: codex
         uses: ./.test-subject/.github/actions/codex-run
         with:
@@ -54,6 +57,7 @@ jobs:
             Then respond with exactly its stdout and nothing else.
 
       - name: Verify the caller's expectation
+        timeout-minutes: 1
         env:
           OUTPUT_PATH: ${{ steps.codex.outputs.output-path }}
         run: |
@@ -68,7 +72,8 @@ jobs:
           fi
 
       - name: Validate secret-writer PAT and persist auth
-        if: ${{ always() }}
+        timeout-minutes: 3
+        if: ${{ always() && steps.codex.outputs.auth-path != '' }}
         uses: ./.test-subject/.github/actions/codex-update-auth
         with:
           codex-auth-path: ${{ steps.codex.outputs.auth-path }}

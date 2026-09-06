@@ -29,7 +29,9 @@ runs:
         ref: ${{ inputs.action-ref }}
         path: .test-subject
         persist-credentials: false
-        sparse-checkout: .github/actions
+        sparse-checkout: |
+          .github
+          tests/src/unit
     - name: Record tested revision
       shell: bash
       env:

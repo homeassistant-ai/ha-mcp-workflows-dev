@@ -1,0 +1,25 @@
+name: Synthetic timed-out invocation
+description: Publish fake auth paths, then exceed a caller step timeout without using any OAuth credentials.
+outputs:
+  auth-path:
+    value: ${{ steps.prepare.outputs.auth-path }}
+    description: Fake rotated auth used only by the cleanup test.
+  original-auth-path:
+    value: ${{ steps.prepare.outputs.original-auth-path }}
+    description: Fake original auth used only by the cleanup test.
+runs:
+  using: composite
+  steps:
+    - id: prepare
+      shell: bash
+      run: |
+        set -euo pipefail
+        original="$(mktemp "$RUNNER_TEMP/original-fixture.XXXXXX")"
+        rotated="$(mktemp "$RUNNER_TEMP/rotated-fixture.XXXXXX")"
+        printf 'original-fixture' > "$original"
+        printf 'rotated-fixture' > "$rotated"
+        echo "original-auth-path=$original" >> "$GITHUB_OUTPUT"
+        echo "auth-path=$rotated" >> "$GITHUB_OUTPUT"
+    - name: Exceed the caller timeout
+      shell: bash
+      run: sleep 120

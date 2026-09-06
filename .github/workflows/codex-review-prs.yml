@@ -6,7 +6,7 @@ on:
       action-ref:
         description: Trusted full commit SHA of the canonical ha-mcp actions.
         required: true
-        default: "b514515c361f55aaca7e29fe621773be845559d6"
+        default: "d555ca0fc1a0fc2febf0648b9d92a194fe5b85d3"
         type: string
       model:
         description: Explicit Codex model to test.
@@ -35,30 +35,35 @@ concurrency:
 jobs:
   review-pull-requests:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 45
     env:
       ITEM_LIMIT: ${{ inputs.limit }}
     steps:
       - name: Checkout
+        timeout-minutes: 2
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           persist-credentials: false
 
       - name: Prepare canonical actions
+        timeout-minutes: 5
         uses: ./.github/actions/prepare-subject
         with:
           action-ref: ${{ inputs.action-ref }}
 
       - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        timeout-minutes: 3
         with:
           version: "0.12.5"
 
       - name: Verify fixtures match the manifest
+        timeout-minutes: 3
         env:
           GH_TOKEN: ${{ github.token }}
         run: uv run --locked -s scripts/fixtures.py check --kind pr
 
       - name: Collect authorized pull-request context
+        timeout-minutes: 5
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -79,7 +84,7 @@ jobs:
               --jq '.[].number'
           )
           if [[ "${#numbers[@]}" -eq 0 ]]; then
-            echo "::error::No open workflow-fixture pull requests found."
+            echo "::error::No open pull requests found."
             exit 1
           fi
           for number in "${numbers[@]}"; do
@@ -102,6 +107,7 @@ jobs:
                   pullRequest(number: $number) {
                     reviewThreads(first: 100, after: $endCursor) {
                       nodes {
+                        id
                         isResolved
                         isOutdated
                         path
@@ -114,6 +120,7 @@ jobs:
                             createdAt
                             url
                           }
+                          pageInfo { hasNextPage endCursor }
                         }
                       }
                       pageInfo { hasNextPage endCursor }
@@ -126,6 +133,32 @@ jobs:
               '[.[].data.repository.pullRequest.reviewThreads.nodes[]]' \
               ".codex-context/pull-requests/pr-$number-thread-pages.json" \
               > ".codex-context/pull-requests/pr-$number-threads.json"
+            threads=".codex-context/pull-requests/pr-$number-threads.json"
+            # gh --paginate advances one connection at a time. Finish each
+            # long comment connection independently of reviewThreads.
+            while IFS= read -r thread_id; do
+              cursor="$(jq -r --arg id "$thread_id" '.[] | select(.id == $id) | .comments.pageInfo.endCursor' "$threads")"
+              gh api graphql --paginate --slurp \
+                -F id="$thread_id" \
+                -F endCursor="$cursor" \
+                -f query='query($id: ID!, $endCursor: String) {
+                  node(id: $id) {
+                    ... on PullRequestReviewThread {
+                      comments(first: 100, after: $endCursor) {
+                        nodes { author { login } body createdAt url }
+                        pageInfo { hasNextPage endCursor }
+                      }
+                    }
+                  }
+                }' > ".codex-context/pull-requests/pr-$number-comment-pages.json"
+              jq --arg id "$thread_id" \
+                --slurpfile pages ".codex-context/pull-requests/pr-$number-comment-pages.json" \
+                'map(if .id == $id then
+                  .comments.nodes += [$pages[0][].data.node.comments.nodes[]] |
+                  .comments.pageInfo = $pages[0][-1].data.node.comments.pageInfo
+                else . end)' "$threads" > "$threads.tmp"
+              mv "$threads.tmp" "$threads"
+            done < <(jq -r '.[] | select(.comments.pageInfo.hasNextPage) | .id' "$threads")
           done
 
           prompt=.codex-context/pr-review-prompt.txt
@@ -150,10 +183,10 @@ jobs:
               echo
               echo "</review_threads>"
               echo "<patch>"
-              head -c 50000 ".codex-context/pull-requests/pr-$number.patch"
+              LC_ALL=C awk 'length($0)+1+bytes > 50000 {exit} {print; bytes+=length($0)+1}' ".codex-context/pull-requests/pr-$number.patch"
               if (( $(wc -c < ".codex-context/pull-requests/pr-$number.patch") > 50000 )); then
                 echo
-                echo "[patch truncated after 50000 bytes]"
+                echo "[patch truncated to complete lines within a 50000-byte budget]"
               fi
               echo
               echo "</patch>"
@@ -162,6 +195,7 @@ jobs:
           done
 
       - name: Ask Codex to review open pull requests
+        timeout-minutes: 18
         id: codex
         uses: ./.test-subject/.github/actions/codex-run
         with:
@@ -175,11 +209,13 @@ jobs:
           instructions-file: .codex-context/pr-review-prompt.txt
 
       - name: Verify report against fixture expectations
+        timeout-minutes: 1
         env:
           OUTPUT_PATH: ${{ steps.codex.outputs.output-path }}
         run: uv run --locked -s scripts/fixtures.py verify-report --kind pr --report "$OUTPUT_PATH"
 
       - name: Persist refreshed Codex auth
+        timeout-minutes: 3
         if: ${{ always() && steps.codex.outputs.auth-path != '' }}
         uses: ./.test-subject/.github/actions/codex-update-auth
         with:
