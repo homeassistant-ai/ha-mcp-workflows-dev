@@ -45,3 +45,29 @@ Inherited release, issue-triage and issue-auto-close workflows must stay disable
 so they cannot mutate the scenarios. `CODEX_AUTH` and `CODEX_AUTH_PAT` belong to
 this bench only. If authentication fails, reauthenticate this bench's dedicated
 account and replace its secret; never copy the product repository's token.
+
+## Validation — 2026-09-05 (America/Toronto)
+
+Codex CLI `0.153.4` with `gpt-6-astra` and low reasoning passed:
+
+- [Bench smoke](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/34002993173):
+  allowed shell command, exact output, direct sandbox isolation and forced auth
+  persistence, testing canonical action commit `6b8fcc11`.
+- [Fixture reset](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/34003250181):
+  seven fixtures checked during sync and again afterward, with no drift.
+- [Issue report](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/34003251373):
+  four fixtures covered; #62/#63 duplicate detected; auth unchanged.
+- [PR report](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/34003252415):
+  three fixtures covered; #67 recognized as draft and #66's unresolved inline
+  feedback discussed; source-PR claims distinguished from actual fixture state.
+
+Both reports tested product commit `b514515c361f55aaca7e29fe621773be845559d6`;
+only the action README differs from the earlier smoke revision. The
+[product smoke](https://github.com/homeassistant-ai/ha-mcp/actions/runs/34002972368)
+also passed using its own account. Local negative checks rejected omitted
+fixtures, missed duplicates and incorrect draft states. YAML parsing and Ruff
+passed. No canary, production comments or product releases were introduced.
+
+The initial runner failure came from an older uv version missing the Windows
+lockfile's relative cooldown setting. The script now declares that setting and
+the runner pin matches the validated local uv version; `--locked` remains on.
