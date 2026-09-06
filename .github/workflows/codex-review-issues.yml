@@ -6,7 +6,7 @@ on:
       action-ref:
         description: Trusted full commit SHA of the canonical ha-mcp actions.
         required: true
-        default: "d555ca0fc1a0fc2febf0648b9d92a194fe5b85d3"
+        default: "fb614b9db60b5ccbb881c52e743c0a721fc820f4"
         type: string
       model:
         description: Explicit Codex model to test.

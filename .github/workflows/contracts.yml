@@ -31,7 +31,7 @@ jobs:
       - name: Exercise canonical workflow regressions
         timeout-minutes: 3
         run: |
-          uv run --no-project --with pytest --with pyyaml pytest --noconftest -c /dev/null \
+          uv run --no-project --with pytest --with pyyaml pytest --noconftest -p no:cacheprovider -c /dev/null \
             .test-subject/tests/src/unit/test_codex_workflow_contracts.py -q
       - name: Simulate invocation step expiry
         id: expiry
