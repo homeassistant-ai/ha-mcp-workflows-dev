@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+# Fixtures are controlled scenarios, not contribution PRs to enrich or review.
+reviews:
+  auto_review:
+    enabled: false
+issue_enrichment:
+  auto_enrich:
+    enabled: false
+  labeling:
+    auto_apply_labels: false
+  planning:
+    enabled: false
+    auto_planning:
+      enabled: false

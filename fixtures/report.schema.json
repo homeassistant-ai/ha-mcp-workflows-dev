@@ -1,0 +1,21 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["items"],
+  "properties": {
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["number", "draft", "duplicate_of", "findings"],
+        "properties": {
+          "number": {"type": "integer"},
+          "draft": {"type": "boolean"},
+          "duplicate_of": {"type": "array", "items": {"type": "integer"}},
+          "findings": {"type": "string"}
+        }
+      }
+    }
+  }
+}

@@ -2,7 +2,7 @@
 > This repository is the workflow-development bench for
 > [`homeassistant-ai/ha-mcp`](https://github.com/homeassistant-ai/ha-mcp), not
 > the canonical product repository. Its open issues and pull requests may be
-> curated fixtures. See the [generic Codex action](.github/actions/codex-run/README.md).
+> curated fixtures. See the [permanent bench runbook](fixtures/README.md).
 
 <div align="center">
   <img src="docs/img/ha-mcp-logo.png" alt="Home Assistant MCP Server Logo" width="300"/>

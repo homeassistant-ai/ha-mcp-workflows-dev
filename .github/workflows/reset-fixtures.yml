@@ -1,0 +1,31 @@
+name: Restore workflow fixtures
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+concurrency:
+  group: codex-auth-${{ github.repository }}
+  cancel-in-progress: false
+  queue: max
+jobs:
+  restore:
+    if: github.repository == 'homeassistant-ai/ha-mcp-workflows-dev'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          version: "0.11.6"
+      - name: Restore only manifest-owned fixture fields
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: uv run --locked -s scripts/fixtures.py sync
+      - name: Verify reset is complete
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: uv run --locked -s scripts/fixtures.py check

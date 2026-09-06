@@ -4,11 +4,14 @@ Guidance for Claude Code when working with this repository.
 
 ## Workflow development repository
 
-- This repository is a disposable workflow-development bench derived from
+- This repository is a permanent workflow-development bench derived from
   `homeassistant-ai/ha-mcp`; the product repository remains canonical.
 - Issues and pull requests labeled `workflow-fixture` are synthetic test data.
-- Direct commits to `master` are allowed only when Julien explicitly requests
-  them for workflow iteration; otherwise follow the branch and PR rules below.
+- Julien authorized direct workflow iteration on this bench on 2026-09-05.
+  Scoped bench changes may be committed and pushed directly to `master`.
+- Read `.github/AGENTS.md` for bench workflows and `fixtures/README.md` for
+  reproducible scenarios. These bench rules override inherited product release
+  and PR requirements below; never publish product releases from this repo.
 - Do not copy workflow secrets to the product repository. Each repository owns
   a distinct `CODEX_AUTH` refresh token.
 

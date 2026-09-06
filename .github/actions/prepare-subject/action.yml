@@ -1,0 +1,41 @@
+name: Prepare canonical Codex actions
+description: Validate maintainer dispatch and check out an immutable ha-mcp action revision.
+inputs:
+  action-ref:
+    description: Full trusted commit SHA in homeassistant-ai/ha-mcp.
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Validate dispatch and maintainer
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+        ACTION_REF: ${{ inputs.action-ref }}
+        ACTOR: ${{ github.actor }}
+        REPOSITORY: ${{ github.repository }}
+        EVENT: ${{ github.event_name }}
+      run: |
+        set -euo pipefail
+        [[ "$REPOSITORY" == homeassistant-ai/ha-mcp-workflows-dev ]]
+        [[ "$EVENT" == workflow_dispatch ]]
+        [[ "$ACTION_REF" =~ ^[0-9a-f]{40}$ ]]
+        permission="$(gh api "repos/$REPOSITORY/collaborators/$ACTOR/permission" --jq .permission)"
+        case "$permission" in admin|maintain|write) ;; *) echo '::error::Maintainer dispatch required.'; exit 1;; esac
+    - name: Checkout canonical actions
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      with:
+        repository: homeassistant-ai/ha-mcp
+        ref: ${{ inputs.action-ref }}
+        path: .test-subject
+        persist-credentials: false
+        sparse-checkout: .github/actions
+    - name: Record tested revision
+      shell: bash
+      env:
+        ACTION_REF: ${{ inputs.action-ref }}
+      run: |
+        set -euo pipefail
+        [[ "$(git -C .test-subject rev-parse HEAD)" == "$ACTION_REF" ]]
+        echo "Canonical action SHA: $ACTION_REF"
+        echo "Tested action: [ha-mcp@$ACTION_REF](https://github.com/homeassistant-ai/ha-mcp/commit/$ACTION_REF)" >> "$GITHUB_STEP_SUMMARY"

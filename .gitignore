@@ -91,3 +91,5 @@ tests/initial_test_state/custom_components/hacs/hacs_frontend/
 .auto-claude/
 .worktrees/
 .claude_settings.json
+/.test-subject/
+/.codex-context/

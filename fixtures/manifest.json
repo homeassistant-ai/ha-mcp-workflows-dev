@@ -1,0 +1,97 @@
+{
+  "version": 1,
+  "repository": "homeassistant-ai/ha-mcp-workflows-dev",
+  "fixtures": [
+    {
+      "key": "fixture-62",
+      "number": 62,
+      "kind": "issue",
+      "title": "[FIXTURE] Support safely removing unused blueprints",
+      "body": "Source scenario: https://github.com/homeassistant-ai/ha-mcp/issues/2329\n\nSpook can report unused Home Assistant blueprints, but HA-MCP cannot currently remove them. Add a supported way for an agent to delete an unused blueprint without enabling broad filesystem-write tools.\n\nThe design must reject deletion when an automation or script still uses the blueprint and should return an actionable error identifying consumers. Home Assistant exposes `blueprint/delete` over WebSocket, while HA-MCP currently wires list, import and save only.",
+      "expected": {
+        "duplicate_of": 63
+      }
+    },
+    {
+      "key": "fixture-63",
+      "number": 63,
+      "kind": "issue",
+      "title": "[FIXTURE] Let agents clean up blueprints reported as unused",
+      "body": "Source scenario: https://github.com/homeassistant-ai/ha-mcp/issues/2329\n\nWhen Spook reports an unused blueprint, ChatGPT can diagnose the issue but cannot finish the cleanup through HA-MCP. Please add a blueprint removal capability so the user does not need to click through the UI.\n\nDeletion should be safe and should not require enabling the generic File & YAML Tools feature.",
+      "expected": {}
+    },
+    {
+      "key": "fixture-64",
+      "number": 64,
+      "kind": "issue",
+      "title": "[FIXTURE] Discover HA-MCP natively inside Home Assistant",
+      "body": "Source scenario: https://github.com/homeassistant-ai/ha-mcp/issues/2307\nUpstream reference: https://github.com/home-assistant/core/pull/180378\n\nHome Assistant is adding native MCP discovery. Explore exposing HA-MCP through that mechanism so users can manage Home Assistant from an agent running inside Home Assistant.\n\nThe upstream work is expected after the 2026.9 release. The desired deployment and compatibility behavior are not yet specified.",
+      "expected": {}
+    },
+    {
+      "key": "fixture-65",
+      "number": 65,
+      "kind": "issue",
+      "title": "[FIXTURE] Reduce CI runner contention without losing coverage",
+      "body": "Source scenario: https://github.com/homeassistant-ai/ha-mcp/issues/2311\n\nA single pull-request push currently schedules roughly forty CI jobs against a twenty-runner concurrency cap. Two active PRs can starve each other.\n\nCandidate changes include combining fast checks, consolidating CodeQL, preserving gates only where matrix skip semantics require them, and reducing duplicate E2E executions while keeping deployment-mode coverage. Any proposal must preserve required-check behavior and make individual failures easy to diagnose.",
+      "expected": {}
+    },
+    {
+      "key": "fixture-66",
+      "number": 66,
+      "kind": "pr",
+      "title": "[FIXTURE] Document ha_call_service parameters",
+      "body": "Source scenario: https://github.com/homeassistant-ai/ha-mcp/pull/2327\n\nFocused documentation-only fixture. The proposed change adds parameter descriptions to `ha_call_service`. The source PR is blocked by requested changes and a failing fast check; the contributor could not run the full Python 3.13 suite locally.\n\nThis PR exists only for Codex workflow evaluation.",
+      "expected": {
+        "draft": false
+      },
+      "branch": "fixture/source-pr-2327",
+      "base_sha": "7822ed05a6b788fb338f705d14a72a8885a4ea04",
+      "draft": false,
+      "files": [
+        {
+          "content": "# Source PR 2327 — service parameter documentation\n\nSource: https://github.com/homeassistant-ai/ha-mcp/pull/2327\n\nThis fixture represents a focused documentation-only change adding\n`Annotated[..., Field(description=...)]` metadata to six `ha_call_service`\nparameters. The source PR changes two files, adds 92 lines, deletes 11, has a\nrequested-changes review, and currently has one failing fast-check lane.\n\nThe contributor reports syntax validation and an external schema inspection,\nbut could not run the Python 3.13 test suite locally.\n",
+          "path": "workflow-fixtures/pull-requests/source-pr-2327.md"
+        }
+      ]
+    },
+    {
+      "key": "fixture-67",
+      "number": 67,
+      "kind": "pr",
+      "title": "[FIXTURE] Add Traditional Chinese locale",
+      "body": "Source scenario: https://github.com/homeassistant-ai/ha-mcp/pull/2267\n\nLarge draft localization fixture spanning eight files and multiple generated catalogs. The source reports focused validation but currently has a dirty merge state and a failing unit-test lane.\n\nThis PR exists only for Codex workflow evaluation.",
+      "expected": {
+        "draft": true
+      },
+      "branch": "fixture/source-pr-2267",
+      "base_sha": "7822ed05a6b788fb338f705d14a72a8885a4ea04",
+      "draft": true,
+      "files": [
+        {
+          "content": "# Source PR 2267 — Traditional Chinese locale\n\nSource: https://github.com/homeassistant-ai/ha-mcp/pull/2267\n\nThis fixture represents a draft localization change adding `zh-Hant` across\nthe settings UI, component and generated add-on catalogs. The source PR changes\neight files, adds 1,354 lines, deletes six, reports 332 focused tests, and has a\nfailing unit-test lane plus a dirty merge state.\n\nThe proposed regional aliases are `zh-TW`, `zh-HK` and `zh-MO`.\n",
+          "path": "workflow-fixtures/pull-requests/source-pr-2267.md"
+        }
+      ]
+    },
+    {
+      "key": "fixture-68",
+      "number": 68,
+      "kind": "pr",
+      "title": "[FIXTURE] Consolidate CI lanes",
+      "body": "Source scenario: https://github.com/homeassistant-ai/ha-mcp/issues/2311\n\nDesign fixture proposing fewer concurrent CI lanes while preserving deployment coverage and required-check semantics. Measurements, exact required-check migrations and rollback criteria remain incomplete.\n\nThis PR exists only for Codex workflow evaluation.",
+      "expected": {
+        "draft": false
+      },
+      "branch": "fixture/source-issue-2311",
+      "base_sha": "7822ed05a6b788fb338f705d14a72a8885a4ea04",
+      "draft": false,
+      "files": [
+        {
+          "content": "# Source issue 2311 — CI lane consolidation proposal\n\nSource: https://github.com/homeassistant-ai/ha-mcp/issues/2311\n\nThis fixture proposes combining fast checks and CodeQL lanes, keeping gate jobs\nonly where matrix skip semantics require them, and reducing duplicated E2E\nexecutions without losing deployment-mode coverage.\n\nThe implementation is intentionally incomplete: required-check names, measured\nrunner-minute changes and rollback criteria still need to be specified.\n",
+          "path": "workflow-fixtures/pull-requests/source-issue-2311.md"
+        }
+      ]
+    }
+  ]
+}
