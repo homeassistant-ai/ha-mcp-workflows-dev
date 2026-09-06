@@ -2,7 +2,8 @@
 
 The product action is owned by `homeassistant-ai/ha-mcp`. Every manual bench
 workflow takes `action-ref`, a full trusted 40-character commit SHA, and checks
-out only its actions under `.test-subject`. `model` defaults to `gpt-6-astra`.
+out its actions, workflows and unit-contract sources under `.test-subject`.
+`model` defaults to `gpt-6-astra`.
 There is no canary. Only maintainers may dispatch actions with bench secrets.
 
 ## Scenarios
@@ -81,3 +82,24 @@ forced auth persistence. All three model scenarios therefore cover that SHA.
 The initial runner failure came from an older uv version missing the Windows
 lockfile's relative cooldown setting. The script now declares that setting and
 the runner pin matches the validated local uv version; `--locked` remains on.
+
+## Review corrections — 2026-09-05 (America/Toronto)
+
+Canonical commit `fb614b9db60b5ccbb881c52e743c0a721fc820f4` passed all four
+manual bench workflows:
+
+- [Regression contracts](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/34009095227):
+  nine cases cover caller budgets, early platform rejection, workspace schema
+  bounds, UTF-8 line truncation, separate thread/comment cursors and late replies.
+  The timed-out composite kept its output paths, and cleanup copied the fake
+  rotated state afterward. No OAuth credentials are involved in this case.
+- [Astra smoke](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/34009096643).
+- [Astra issue report](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/34009098004).
+- [Astra PR report](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/34009099607).
+
+The report workflows mirror the canonical collection code, adding only fixture
+selection and structured-output assertions. Nested comment metadata is aliased
+because `gh --paginate` selects the first unaliased `pageInfo` connection. A
+long thread is then paginated independently from its own cursor and merged back
+into the complete report context. Local smoke assertions also confirmed that
+embedded and trailing newlines are rejected.
