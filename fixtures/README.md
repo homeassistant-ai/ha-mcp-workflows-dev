@@ -33,7 +33,7 @@ The standalone script declares its seven-day dependency cooldown and uses uv
 
 ## Validation
 
-Run `contracts.yml`, `test.yml`, `codex-review-issues.yml` and `codex-review-prs.yml` against the
+Run `contracts.yml`, `test.yml`, `gh-smoke.yml`, `codex-review-issues.yml` and `codex-review-prs.yml` against the
 same immutable action SHA. The smoke checks credential isolation directly with
 `codex sandbox`, an allowed model shell call, byte-exact output and forced auth
 persistence. Report runs
@@ -103,3 +103,28 @@ because `gh --paginate` selects the first unaliased `pageInfo` connection. A
 long thread is then paginated independently from its own cursor and merged back
 into the complete report context. Local smoke assertions also confirmed that
 embedded and trailing newlines are rejected.
+
+## Caller capabilities and reviewer fixes — 2026-09-07
+
+Canonical commit `ca0732376db31bc47b57e69be245b2f351fd74ab` passed:
+
+- [Contracts](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/34090282488):
+  36 regressions covering default and explicit capabilities, reserved/unset
+  environment grants, private logging, CLI exit statuses, auth persistence,
+  malformed/partial context, report presence and workflow security wiring;
+  the timed-out composite cleanup test also passed.
+- [Authenticated gh](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/34090284214):
+  Astra executed `gh api` with the caller's read-only `GH_TOKEN` and explicitly
+  enabled command network access. The check verifies a successful real command
+  event in the captured CLI log, not only the model's final text.
+- [Hello World](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/34090286184).
+- [Issue report](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/34090288445).
+- [PR report](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/34090290452).
+
+The action now returns `output-path` and private `log-path`. Callers validate and
+publish reports explicitly; the action neither requires final prose nor writes
+an Actions summary. The gh smoke deliberately enables shell/network and passes
+only `GH_TOKEN`; fixture report workflows retain shell-less, offline defaults.
+Filesystem read-only does not restrict remote GitHub mutations: the supplied
+token's permissions must match the caller's operation. The gh smoke tests reads.
+No maintainer trust-list mechanism or scheduled canary was added.
