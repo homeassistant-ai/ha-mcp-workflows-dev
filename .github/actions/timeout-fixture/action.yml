@@ -1,6 +1,9 @@
 name: Synthetic timed-out invocation
 description: Publish fake auth paths, then exceed a caller step timeout without using any OAuth credentials.
 outputs:
+  log-path:
+    value: ${{ steps.prepare.outputs.log-path }}
+    description: Synthetic diagnostic transcript, containing no credentials.
   auth-path:
     value: ${{ steps.prepare.outputs.auth-path }}
     description: Fake rotated auth used only by the cleanup test.
@@ -18,6 +21,9 @@ runs:
         rotated="$(mktemp "$RUNNER_TEMP/rotated-fixture.XXXXXX")"
         printf 'original-fixture' > "$original"
         printf 'rotated-fixture' > "$rotated"
+        log="$(mktemp "$RUNNER_TEMP/log-fixture.XXXXXX")"
+        printf 'fixture failure detail\n::error::untrusted log text\n' > "$log"
+        echo "log-path=$log" >> "$GITHUB_OUTPUT"
         echo "original-auth-path=$original" >> "$GITHUB_OUTPUT"
         echo "auth-path=$rotated" >> "$GITHUB_OUTPUT"
     - name: Exceed the caller timeout

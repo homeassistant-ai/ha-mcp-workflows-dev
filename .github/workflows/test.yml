@@ -6,7 +6,7 @@ on:
       action-ref:
         description: Trusted full commit SHA of the canonical ha-mcp actions.
         required: true
-        default: "ca0732376db31bc47b57e69be245b2f351fd74ab"
+        default: "30a249967ecca3d8bd63696f02b5cd4b9cd4bb63"
         type: string
       model:
         description: Explicit Codex model to test.
@@ -25,7 +25,7 @@ concurrency:
 jobs:
   hello-world:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 32
     steps:
       - name: Checkout
         timeout-minutes: 2
@@ -72,6 +72,22 @@ jobs:
           fi
           sed 's/^/Codex | /' "$OUTPUT_PATH"
           cat "$OUTPUT_PATH" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Publish diagnostics on failure
+        # Deliberate caller policy for these public, fixed/unprivileged report prompts.
+        if: ${{ failure() && steps.codex.outputs.log-path != '' }}
+        timeout-minutes: 1
+        env:
+          LOG_PATH: ${{ steps.codex.outputs.log-path }}
+        run: |
+          set -euo pipefail
+          if [[ -s "$LOG_PATH" ]]; then
+            echo "::group::Codex failure diagnostics"
+            sed 's/^/Codex log | /' "$LOG_PATH"
+            echo "::endgroup::"
+          else
+            echo "No Codex diagnostic log was produced before the failure."
+          fi
 
       - name: Validate secret-writer PAT and persist auth
         timeout-minutes: 3
