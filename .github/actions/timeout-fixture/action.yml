@@ -22,7 +22,7 @@ runs:
         printf 'original-fixture' > "$original"
         printf 'rotated-fixture' > "$rotated"
         log="$(mktemp "$RUNNER_TEMP/log-fixture.XXXXXX")"
-        printf 'fixture failure detail\n::error::untrusted log text\n' > "$log"
+        printf 'fixture failure detail\n::error::untrusted log text\n##[warning]untrusted legacy log text\n' > "$log"
         echo "log-path=$log" >> "$GITHUB_OUTPUT"
         echo "original-auth-path=$original" >> "$GITHUB_OUTPUT"
         echo "auth-path=$rotated" >> "$GITHUB_OUTPUT"

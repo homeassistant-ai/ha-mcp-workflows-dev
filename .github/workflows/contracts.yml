@@ -67,6 +67,8 @@ jobs:
               result = subprocess.run(["bash", "-c", step["run"]], env=os.environ, capture_output=True, text=True, check=True)
               assert "Codex log | fixture failure detail" in result.stdout
               assert "\n::error::untrusted log text" not in result.stdout
+              assert "Codex log | ##[warning]untrusted legacy log text" in result.stdout
+              assert "::stop-commands::" in result.stdout
               print(result.stdout, end="")
           print("Canonical caller diagnostics are preserved in this Actions log after the simulated timeout.")
           PY

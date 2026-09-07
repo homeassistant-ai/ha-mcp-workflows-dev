@@ -5,7 +5,7 @@ on:
       action-ref:
         description: Trusted full commit SHA of the canonical action.
         required: true
-        default: "ca0732376db31bc47b57e69be245b2f351fd74ab"
+        default: "22a0b36f2a53bc9b368073c3c5aefceda2f43150"
         type: string
       model:
         description: Codex model to exercise.
@@ -73,14 +73,26 @@ jobs:
           console.log(`Verified authenticated gh execution: ${expected}`);
           fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `Authenticated gh smoke: ${expected}\n`);
           JS
-      - name: Show controlled smoke diagnostics on failure
+      - name: Publish diagnostics on failure
+        # Deliberate caller policy for these public, fixed/unprivileged report prompts.
         if: ${{ failure() && steps.codex.outputs.log-path != '' }}
         timeout-minutes: 1
         env:
           LOG_PATH: ${{ steps.codex.outputs.log-path }}
         run: |
-          # Deliberate caller choice: this fixed smoke prompt contains public metadata only.
-          if [[ -f "$LOG_PATH" ]]; then sed 's/^/Codex smoke log | /' "$LOG_PATH"; fi
+          set -euo pipefail
+          if [[ -s "$LOG_PATH" ]]; then
+            echo "::group::Codex failure diagnostics"
+            # The runner also recognizes legacy ##[...] commands mid-line.
+            # Generate the resume token after Codex exits; it is not in the log.
+            pause_token="$(node -e 'process.stdout.write(require("node:crypto").randomUUID())')"
+            trap 'printf "::%s::\n::endgroup::\n" "$pause_token"' EXIT
+            printf '::stop-commands::%s\n' "$pause_token"
+            sed 's/^/Codex log | /' "$LOG_PATH"
+          else
+            echo "No Codex diagnostic log was produced before the failure."
+          fi
+
       - name: Persist refreshed Codex auth
         if: ${{ always() && steps.codex.outputs.auth-path != '' }}
         timeout-minutes: 3
