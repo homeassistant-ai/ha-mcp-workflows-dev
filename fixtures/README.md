@@ -128,3 +128,21 @@ only `GH_TOKEN`; fixture report workflows retain shell-less, offline defaults.
 Filesystem read-only does not restrict remote GitHub mutations: the supplied
 token's permissions must match the caller's operation. The gh smoke tests reads.
 No maintainer trust-list mechanism or scheduled canary was added.
+
+## Retained diagnostics — 2026-09-07
+
+Canonical commit `b01fabd7ab29e09780f7763da172e5e8769d3ab1` passed the
+[50-case contract and timeout suite](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/34153546231).
+After a synthetic action timeout, the bench executes the canonical failure-log
+publication blocks and leaves their output in the durable Actions run log.
+Both modern `::error::` and legacy `##[warning]` payloads remain inert; the
+completed job's annotations were checked to confirm neither was interpreted.
+
+Callers suspend command processing with a fresh UUID and restore it on exit.
+Diagnostics retain the last 256 KiB and at most 1,000 lines, with truncation
+markers, so the publication step cannot consume an unbounded log. Unit cases
+exercise both limits with multibyte input. Successful report stdout uses the
+same command suspension. Missing early-stage logs are handled explicitly.
+The generic action still captures logs privately; publication remains a caller
+decision. Its executable files are unchanged from the Astra/gh-validated
+`ca073237` revision. No live OAuth credential is used by this failure simulation.
