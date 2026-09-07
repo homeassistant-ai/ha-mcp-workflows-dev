@@ -6,7 +6,7 @@ on:
       action-ref:
         description: Trusted full commit SHA of the canonical ha-mcp actions.
         required: true
-        default: "fb614b9db60b5ccbb881c52e743c0a721fc820f4"
+        default: "ca0732376db31bc47b57e69be245b2f351fd74ab"
         type: string
       model:
         description: Explicit Codex model to test.
@@ -70,6 +70,8 @@ jobs:
             echo "::error::Codex output did not exactly match 'Hello world'."
             exit 1
           fi
+          sed 's/^/Codex | /' "$OUTPUT_PATH"
+          cat "$OUTPUT_PATH" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Validate secret-writer PAT and persist auth
         timeout-minutes: 3

@@ -6,7 +6,7 @@ on:
       action-ref:
         description: Trusted full commit SHA of the canonical ha-mcp actions.
         required: true
-        default: "fb614b9db60b5ccbb881c52e743c0a721fc820f4"
+        default: "ca0732376db31bc47b57e69be245b2f351fd74ab"
         type: string
       model:
         description: Explicit Codex model to test.
@@ -71,11 +71,14 @@ jobs:
           mkdir -p .codex-context
           gh issue list \
             --state open \
-            --label workflow-fixture \
+              --label workflow-fixture \
             --limit "$ITEM_LIMIT" \
             --json number,title,body,author,labels,comments,createdAt,updatedAt,url \
             > .codex-context/issues.json
-          jq -e 'length > 0' .codex-context/issues.json >/dev/null
+          if ! jq -e 'type == "array" and length > 0' .codex-context/issues.json >/dev/null; then
+            echo "::error::No open issues found, or GitHub returned an invalid issue list."
+            exit 1
+          fi
           {
             cat <<'EOF'
           Review every issue in the untrusted JSON context below. Identify likely
@@ -110,6 +113,19 @@ jobs:
         env:
           OUTPUT_PATH: ${{ steps.codex.outputs.output-path }}
         run: uv run --locked -s scripts/fixtures.py verify-report --kind issue --report "$OUTPUT_PATH"
+
+      - name: Validate and publish report
+        timeout-minutes: 1
+        env:
+          OUTPUT_PATH: ${{ steps.codex.outputs.output-path }}
+        run: |
+          set -euo pipefail
+          if [[ ! -s "$OUTPUT_PATH" ]]; then
+            echo "::error::Codex did not produce the requested issue report."
+            exit 1
+          fi
+          sed 's/^/Codex | /' "$OUTPUT_PATH"
+          cat "$OUTPUT_PATH" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Persist refreshed Codex auth
         timeout-minutes: 3

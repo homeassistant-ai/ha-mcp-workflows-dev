@@ -1,0 +1,92 @@
+name: Codex authenticated gh smoke
+on:
+  workflow_dispatch:
+    inputs:
+      action-ref:
+        description: Trusted full commit SHA of the canonical action.
+        required: true
+        default: "ca0732376db31bc47b57e69be245b2f351fd74ab"
+        type: string
+      model:
+        description: Codex model to exercise.
+        required: true
+        default: gpt-6-astra
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: codex-auth-${{ github.repository }}
+  cancel-in-progress: false
+  queue: max
+jobs:
+  gh-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout
+        timeout-minutes: 2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - name: Prepare canonical actions
+        timeout-minutes: 5
+        uses: ./.github/actions/prepare-subject
+        with:
+          action-ref: ${{ inputs.action-ref }}
+      - name: Let Codex use gh with an explicit credential grant
+        id: codex
+        timeout-minutes: 18
+        uses: ./.test-subject/.github/actions/codex-run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        with:
+          codex-auth: ${{ secrets.CODEX_AUTH }}
+          model: ${{ inputs.model }}
+          reasoning-effort: low
+          sandbox: read-only
+          allow-shell: "true"
+          network-access: "true"
+          passthrough-env: GH_TOKEN
+          timeout-minutes: "5"
+          instructions: |
+            Run exactly this command once:
+            gh api repos/${{ github.repository }} --jq .full_name
+            Use the configured gh authentication without inspecting or printing any credential.
+            Return exactly the command's stdout and nothing else.
+      - name: Verify real gh execution and publish the public result
+        timeout-minutes: 1
+        env:
+          OUTPUT_PATH: ${{ steps.codex.outputs.output-path }}
+          LOG_PATH: ${{ steps.codex.outputs.log-path }}
+        run: |
+          node <<'JS'
+          const fs = require('node:fs');
+          const expected = process.env.GITHUB_REPOSITORY;
+          const output = fs.readFileSync(process.env.OUTPUT_PATH, 'utf8').trim();
+          const events = fs.readFileSync(process.env.LOG_PATH, 'utf8').split('\n').flatMap(line => {
+            try { return [JSON.parse(line)]; } catch { return []; }
+          });
+          const executed = events.some(event => event.type === 'item.completed' &&
+            event.item?.type === 'command_execution' && event.item.exit_code === 0 &&
+            event.item.command.includes('gh api') && event.item.aggregated_output.trim() === expected);
+          if (!executed || output !== expected) throw new Error('A successful real gh command and matching response are required');
+          console.log(`Verified authenticated gh execution: ${expected}`);
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `Authenticated gh smoke: ${expected}\n`);
+          JS
+      - name: Show controlled smoke diagnostics on failure
+        if: ${{ failure() && steps.codex.outputs.log-path != '' }}
+        timeout-minutes: 1
+        env:
+          LOG_PATH: ${{ steps.codex.outputs.log-path }}
+        run: |
+          # Deliberate caller choice: this fixed smoke prompt contains public metadata only.
+          if [[ -f "$LOG_PATH" ]]; then sed 's/^/Codex smoke log | /' "$LOG_PATH"; fi
+      - name: Persist refreshed Codex auth
+        if: ${{ always() && steps.codex.outputs.auth-path != '' }}
+        timeout-minutes: 3
+        uses: ./.test-subject/.github/actions/codex-update-auth
+        with:
+          codex-auth-path: ${{ steps.codex.outputs.auth-path }}
+          original-codex-auth: ${{ steps.codex.outputs.original-auth-path }}
+          gh-token: ${{ secrets.CODEX_AUTH_PAT }}
+          repository: ${{ github.repository }}
