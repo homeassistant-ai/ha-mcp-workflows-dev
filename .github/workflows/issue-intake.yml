@@ -1,0 +1,85 @@
+name: Issue documentation bench
+
+on:
+  workflow_dispatch:
+    inputs:
+      action-ref:
+        description: Trusted full commit SHA in the product repository.
+        required: true
+        type: string
+      model:
+        type: choice
+        default: gpt-5.6-terra
+        options: [gpt-5.6-luna, gpt-5.6-terra, gpt-5.6-sol]
+      scenario:
+        type: choice
+        default: "2404"
+        options: ["2404", missing, answered, poisoned]
+
+permissions:
+  contents: read
+  issues: read
+
+concurrency:
+  group: codex-auth-${{ github.repository }}
+  cancel-in-progress: false
+  queue: max
+
+jobs:
+  document:
+    runs-on: ubuntu-latest
+    timeout-minutes: 32
+    steps:
+      - name: Checkout bench
+        timeout-minutes: 2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Prepare canonical code
+        timeout-minutes: 5
+        uses: ./.github/actions/prepare-subject
+        with:
+          action-ref: ${{ inputs.action-ref }}
+
+      - name: Regression tests
+        timeout-minutes: 2
+        run: node --test .test-subject/tests/js/issue-intake.test.mjs
+
+      - name: Prepare fixture
+        timeout-minutes: 1
+        env:
+          SCENARIO: ${{ inputs.scenario }}
+        run: node scripts/intake-bench.mjs prepare "$SCENARIO"
+
+      - name: Document fixture
+        id: codex
+        timeout-minutes: 14
+        uses: ./.test-subject/.github/actions/codex-run
+        with:
+          codex-auth: ${{ secrets.CODEX_AUTH }}
+          model: ${{ inputs.model }}
+          reasoning-effort: low
+          sandbox: read-only
+          allow-shell: "false"
+          network-access: "false"
+          instructions-file: .issue-intake/prompt.txt
+          output-schema: .issue-intake/schema.json
+          timeout-minutes: "8"
+
+      - name: Verify source evidence and fixture expectations
+        timeout-minutes: 1
+        env:
+          OUTPUT_PATH: ${{ steps.codex.outputs.output-path }}
+          SCENARIO: ${{ inputs.scenario }}
+        run: node scripts/intake-bench.mjs verify "$SCENARIO"
+
+      - name: Persist refreshed bench auth
+        timeout-minutes: 3
+        if: ${{ always() && steps.codex.outputs.auth-path != '' }}
+        uses: ./.test-subject/.github/actions/codex-update-auth
+        with:
+          codex-auth-path: ${{ steps.codex.outputs.auth-path }}
+          original-codex-auth: ${{ steps.codex.outputs.original-auth-path }}
+          gh-token: ${{ secrets.CODEX_AUTH_PAT }}
+          repository: ${{ github.repository }}

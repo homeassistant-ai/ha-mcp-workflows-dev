@@ -93,3 +93,4 @@ tests/initial_test_state/custom_components/hacs/hacs_frontend/
 .claude_settings.json
 /.test-subject/
 /.codex-context/
+/.issue-intake/
