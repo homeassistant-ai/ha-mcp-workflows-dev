@@ -30,7 +30,14 @@ if (command === "prepare") {
   writeFileSync(".issue-intake/schema.json", JSON.stringify(intake.schema));
   console.log(`Prepared ${scenario} using canonical code. No GitHub writes.`);
 } else if (command === "verify") {
-  const result = JSON.parse(readFileSync(process.env.OUTPUT_PATH, "utf8"));
+  const raw = readFileSync(process.env.OUTPUT_PATH, "utf8");
+  assert.ok(Buffer.byteLength(raw) <= 100000, "Fixture output exceeds budget");
+  // Keep a rejected response reviewable too. Only synthetic/public fixture
+  // text is supplied here; do not reuse this logging policy for private issues.
+  const diagnosticPause = randomUUID();
+  console.log(`::stop-commands::${diagnosticPause}`);
+  try { console.log(raw); } finally { console.log(`::${diagnosticPause}::`); }
+  const result = JSON.parse(raw);
   intake.validateResult(result, prepared.context);
   const expected = fixture.expected;
   if (expected.missing_fields)
