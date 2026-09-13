@@ -92,6 +92,14 @@
           "path": "workflow-fixtures/pull-requests/source-issue-2311.md"
         }
       ]
+    },
+    {
+      "key": "intake-publication",
+      "number": 69,
+      "kind": "issue",
+      "title": "[FIXTURE] Issue intake publication and label ownership",
+      "body": "This issue is synthetic test data for the issue documentation workflow.\n\nThe dashboard call hangs. The installation method and version have not been supplied.\n\nThe bench will update one App-owned summary and exercise needs-info ownership.\nNo Home Assistant instance or production issue is involved.\n",
+      "expected": {}
     }
   ]
 }

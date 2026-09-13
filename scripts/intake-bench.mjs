@@ -36,7 +36,11 @@ if (command === "prepare") {
   // text is supplied here; do not reuse this logging policy for private issues.
   const diagnosticPause = randomUUID();
   console.log(`::stop-commands::${diagnosticPause}`);
-  try { console.log(raw); } finally { console.log(`::${diagnosticPause}::`); }
+  try {
+    console.log(raw);
+  } finally {
+    console.log(`::${diagnosticPause}::`);
+  }
   const result = JSON.parse(raw);
   intake.validateResult(result, prepared.context);
   const expected = fixture.expected;

@@ -1,0 +1,61 @@
+name: Issue intake publication bench
+on:
+  workflow_dispatch:
+    inputs:
+      action-ref:
+        description: Trusted full canonical product SHA.
+        required: true
+        type: string
+      mode:
+        type: choice
+        default: request
+        options: [request, answered]
+permissions:
+  contents: read
+  issues: read
+concurrency:
+  group: intake-publication-fixture
+  cancel-in-progress: false
+  queue: max
+jobs:
+  publication:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        timeout-minutes: 2
+        with:
+          persist-credentials: false
+      - name: Check actual maintainer roles
+        timeout-minutes: 1
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ACTOR: ${{ github.actor }}
+          TRIGGERING_ACTOR: ${{ github.triggering_actor }}
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_REPOSITORY" == homeassistant-ai/ha-mcp-workflows-dev ]]
+          for actor in "$ACTOR" "$TRIGGERING_ACTOR"; do
+            role="$(gh api "repos/$GITHUB_REPOSITORY/collaborators/$actor/permission" --jq .role_name)"
+            case "$role" in maintain|admin) ;; *) echo '::error::Maintainer required'; exit 1;; esac
+          done
+      - uses: ./.github/actions/prepare-subject
+        timeout-minutes: 4
+        with:
+          action-ref: ${{ inputs.action-ref }}
+      - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3
+        id: app-token
+        timeout-minutes: 1
+        with:
+          app-id: ${{ vars.HA_MCP_APP_ID }}
+          private-key: ${{ secrets.HA_MCP_APP_PRIVATE_KEY }}
+          permission-issues: write
+          permission-contents: read
+      - name: Exercise canonical publisher on manifest fixture only
+        timeout-minutes: 3
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          TOKEN_APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
+          HA_MCP_APP_SLUG: ${{ vars.HA_MCP_APP_SLUG }}
+          PUBLICATION_MODE: ${{ inputs.mode }}
+        run: node scripts/intake-publish-bench.mjs
