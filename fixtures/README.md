@@ -37,8 +37,6 @@ issue-to-PR lifecycle, which is a separate phase.
 gh workflow run issue-intake.yml --repo homeassistant-ai/ha-mcp-workflows-dev -f action-ref=FULL_PRODUCT_SHA -f model=gpt-5.6-terra -f scenario=2404
 ```
 
-### Existing report scenarios
-
 ### Intake validation — 2026-09-13 (America/Toronto)
 
 Against canonical `6eb42ed154a171981b8558ec40497ca35d59df6e` (shell and hosted
