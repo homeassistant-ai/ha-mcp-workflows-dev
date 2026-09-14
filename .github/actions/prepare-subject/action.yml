@@ -13,6 +13,7 @@ runs:
         GH_TOKEN: ${{ github.token }}
         ACTION_REF: ${{ inputs.action-ref }}
         ACTOR: ${{ github.actor }}
+        TRIGGERING_ACTOR: ${{ github.triggering_actor }}
         REPOSITORY: ${{ github.repository }}
         EVENT: ${{ github.event_name }}
       run: |
@@ -20,8 +21,13 @@ runs:
         [[ "$REPOSITORY" == homeassistant-ai/ha-mcp-workflows-dev ]]
         [[ "$EVENT" == workflow_dispatch ]]
         [[ "$ACTION_REF" =~ ^[0-9a-f]{40}$ ]]
-        permission="$(gh api "repos/$REPOSITORY/collaborators/$ACTOR/permission" --jq .permission)"
-        case "$permission" in admin|maintain|write) ;; *) echo '::error::Maintainer dispatch required.'; exit 1;; esac
+        # The legacy permission field maps maintain to write. Verify actual
+        # roles for both the original dispatcher and whoever reran the job.
+        for actor in "$ACTOR" "$TRIGGERING_ACTOR"; do
+          [[ -n "$actor" ]]
+          role="$(gh api "repos/$REPOSITORY/collaborators/$actor/permission" --jq .role_name)"
+          case "$role" in admin|maintain) ;; *) echo '::error::Maintainer dispatch required.'; exit 1;; esac
+        done
     - name: Checkout canonical actions
       uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       with:
