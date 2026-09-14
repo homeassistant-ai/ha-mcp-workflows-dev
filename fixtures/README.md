@@ -79,7 +79,17 @@ its reporter's synthetic reply. No product issue or PR was changed by the bench.
 Later canonical review corrections cover null authors, URL defanging, source
 comment deletions, permission-error continuation, required translations, visible
 reported facts, bounded transient-write retries and retained labels on failed
-closures. The dependency-free behavior suite now contains 23 tests.
+closures. The dependency-free behavior suite now contains 27 tests.
+
+The [updated Terra #2404 replay](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/34797119757)
+passed on `3bbdcb9b427b6933f3d6cb2f3064550378fe342a`, after allowing multiple
+explicitly sourced tools/clients in one fact category. The earlier rejection on
+`79f3e010` was a validator defect, not a wrong model scope decision.
+[Publication replay](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/34797430162)
+also passed on `b1e50355adc9cdc139e9f01ff7c64811750e5747` after the transient-write
+retry corrections, with the same comment ID and no extra writes. Subsequent
+closure-only fixes deduplicate the closing notice within a label cycle, report
+post-close cleanup failures, and explicitly exclude PRs from issue closure.
 
 ### Existing report fixture inventory
 
