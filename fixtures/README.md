@@ -148,6 +148,9 @@ Product commit `1a5a018acdb4d62110e228157413719e346e4e91` guards that access;
 all 41 Node cases passed, including a reminder fixture confirming that a null
 author neither suppresses the reminder nor interrupts later issues in the batch.
 This correction changes no model contract and required no new publication test.
+The same commit passed the [full PR pipeline](https://github.com/homeassistant-ai/ha-mcp/actions/runs/34811551885),
+[all six HAOS lanes](https://github.com/homeassistant-ai/ha-mcp/actions/runs/34811551899),
+and [CodeQL Gate](https://github.com/homeassistant-ai/ha-mcp/actions/runs/34811551946).
 
 ### Existing report fixture inventory
 
