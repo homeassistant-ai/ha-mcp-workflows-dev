@@ -39,6 +39,43 @@ gh workflow run issue-intake.yml --repo homeassistant-ai/ha-mcp-workflows-dev -f
 
 ### Existing report scenarios
 
+### Intake validation — 2026-09-13 (America/Toronto)
+
+Against canonical `6eb42ed154a171981b8558ec40497ca35d59df6e` (shell and hosted
+web search disabled), Terra passed all four model scenarios:
+
+- [KP13 #2404 scope](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/34790642276)
+- [Italian incomplete report](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/34790646089)
+- [Details supplied in a reply](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/34790650216)
+- [Old bot theory and instruction-like text](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/34790654239)
+
+[Luna on #2404](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/34790658731)
+preserved the approved scope but requested six unnecessary environment fields;
+the semantic assertion correctly failed. Luna remains available for bench
+evaluation, not production publication. This small sample supports the Terra
+default; it is not a general model-quality benchmark. An earlier Terra response
+at `e0bb2b79` failed exact-quote validation and was not published; subsequent
+instructions emphasize short verbatim excerpts and all four final cases passed.
+
+`intake-publish.yml` separately exercises the actual publisher on manifest issue
+#69, using only the App installation token and no model/OAuth call. The `request`
+stage requests version/install details; after the fixture reporter posts
+`Fixture answer: HACS integration, ha-mcp 8.4.3.`, the `answered` stage removes
+the App-owned needs-info label. Both stages verify one stable comment and zero
+writes on an identical replay. Never dispatch this workflow against production.
+
+The [first publication run](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/34791040807)
+stopped before any publication because `HA_MCP_APP_PRIVATE_KEY` was not yet
+available. App `ha-mcp` / ID `4934859` is installed; key provisioning is owned by
+the separate setup thread. After it finishes, rerun `request`, post the fixture
+answer as its reporter, then run `answered` against the latest canonical SHA.
+Do not claim live publication is verified until those runs pass. Later canonical
+review corrections add null-author handling, URL defanging, deleted-source
+events, permission-error continuation, and mandatory non-English translation;
+the dependency-free behavior suite now contains 18 tests.
+
+### Existing report fixture inventory
+
 `manifest.json` pins the synthetic titles, bodies, PR patch files and expected
 facts. Issues #62/#63 deliberately overlap; #64 concerns native discovery and
 #65 CI contention. PR #66 is a documentation snapshot, #67 is deliberately a
