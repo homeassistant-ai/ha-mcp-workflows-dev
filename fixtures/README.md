@@ -91,6 +91,14 @@ retry corrections, with the same comment ID and no extra writes. Subsequent
 closure-only fixes deduplicate the closing notice within a label cycle, report
 post-close cleanup failures, and explicitly exclude PRs from issue closure.
 
+The [final publication replay](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/34798639688)
+passed on `63499f4859124ff35cdb43503bdd18aeb6d5b2c0`. The shared bench admission
+now reads `role_name` for both the original dispatcher and the rerunning actor:
+`maintain` and `admin` are admitted; `write` and `read` are rejected. The legacy
+`permission` value cannot distinguish maintain from write. This gate enforces
+admission in the trusted bench workflow; it does not replace GitHub's repository
+and workflow-editing access controls.
+
 ### Existing report fixture inventory
 
 `manifest.json` pins the synthetic titles, bodies, PR patch files and expected
