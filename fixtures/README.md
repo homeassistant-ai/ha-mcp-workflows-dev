@@ -25,6 +25,8 @@ modifies the source issues. Fixtures under `intake/` cover:
   do not ask again for information already provided.
 - `poisoned`: the answered case plus a false bot diagnosis and instruction-like
   text in a human comment; retain the facts without following those instructions.
+- `requested`: the incomplete report with a maintainer already asking for the
+  missing details; retain those fields as outstanding without repeating questions.
 
 The canonical deterministic suite checks comment updates, source validation,
 maintainer controls, label ownership, stale context, interrupted writes, and the
@@ -105,6 +107,41 @@ The final product revision `63499f4859124ff35cdb43503bdd18aeb6d5b2c0` passed the
 and CodeQL. [PR #2447](https://github.com/homeassistant-ai/ha-mcp/pull/2447) was
 marked ready for review and KP13 was requested. Activation remains tied to the
 product PR merge; no live product issue was used for publication testing.
+
+### KP13 review corrections — 2026-09-14
+
+Five read-only Terra scenarios passed against canonical
+`d3339c47ad87f4a9a74c4fb01e6263318871ce14`:
+
+- [KP13 #2404 scope](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/34810047036)
+- [Incomplete Italian report](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/34810051356)
+- [Details supplied](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/34810055863)
+- [Misleading bot theory and instruction-like text](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/34810059792)
+- [Outstanding maintainer questions](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/34810064229)
+
+An initial answered-case run omitted an explicitly supplied installation method.
+The prompt now requires complete reported-fact coverage, with room for multiple
+facts per category; the unchanged semantic assertions passed on the rerun.
+The schema uses `needs_translation`, normalizes CRLF in quotations, requires
+fact values to appear in their quotes, and requires maintainer evidence for
+`already_requested`, which remains a subset of `missing_fields`.
+
+The resulting product revision `5ada246274daf4276207054ce1a6041554cee97d`
+passed 74 focused pytest checks, including 40 Node behavior cases. Later changes
+only fixed GitHub mention rendering and closure for deleted reporters; both have
+regressions. GitHub's non-persistent Markdown rendering endpoint confirmed that
+zero-width mention/reference breaks preserve visible text without autolinks.
+No new issue/PR comments were posted during this review update, and the App
+publication workflow was not rerun.
+
+Current lifecycle policy supersedes the earlier maintainer-only restriction:
+every needs-info issue receives reminders on days 3/5/6 and closes on day 7
+without a reporter reply, regardless of label author. A reporter reply clears
+the label. Admission now coalesces automatic event bursts before the shared
+OAuth job queue, while manual dispatch retains its model selection. Label and
+lock changes have matching triggers; stale publication emits a warning.
+Omitting the reusable action's `web-search` input passes no CLI override;
+documentation intake explicitly disables it. Omitted-input behavior is tested.
 
 ### Existing report fixture inventory
 
