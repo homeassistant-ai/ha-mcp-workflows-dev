@@ -14,7 +14,7 @@ on:
       scenario:
         type: choice
         default: "2404"
-        options: ["2404", missing, answered, poisoned]
+        options: ["2404", missing, answered, poisoned, requested]
 
 permissions:
   contents: read
@@ -44,7 +44,7 @@ jobs:
 
       - name: Regression tests
         timeout-minutes: 2
-        run: node --test .test-subject/tests/js/issue-intake.test.mjs
+        run: node --test .test-subject/tests/js/issue-intake.test.mjs .test-subject/tests/js/issue-intake-review.test.mjs
 
       - name: Prepare fixture
         timeout-minutes: 1

@@ -21,7 +21,7 @@ const snapshot = await intake.collect(api, repository, fixture.number);
 assert.equal(snapshot.issue.title, fixture.title);
 assert.ok(snapshot.issue.labels.some((l) => l.name === "workflow-fixture"));
 const result = {
-  language: "English",
+  needs_translation: false,
   summary: [
     {
       text: "The fixture reporter says the dashboard call hangs.",

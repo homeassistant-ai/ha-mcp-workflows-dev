@@ -12,7 +12,9 @@ import assert from "node:assert/strict";
 const [command, scenario] = process.argv.slice(2);
 if (process.env.GITHUB_REPOSITORY !== "homeassistant-ai/ha-mcp-workflows-dev")
   throw Error("Run this bench only in ha-mcp-workflows-dev");
-if (!["2404", "missing", "answered", "poisoned"].includes(scenario))
+if (
+  !["2404", "missing", "answered", "poisoned", "requested"].includes(scenario)
+)
   throw Error("Unknown fixture");
 const subject = resolve(process.env.INTAKE_SUBJECT || ".test-subject");
 const intake = await import(
@@ -72,7 +74,22 @@ if (command === "prepare") {
   const scope = result.agreed_scope.map((s) => s.text).join(" ");
   for (const pattern of expected.scope_patterns || [])
     assert.match(scope, new RegExp(pattern, "i"));
+  for (const field of expected.already_requested_fields || []) {
+    assert.ok(
+      result.already_requested.some((r) => r.field === field),
+      `Maintainer question lost: ${field}`,
+    );
+    assert.ok(
+      result.missing_fields.includes(field),
+      `Unanswered question incorrectly cleared: ${field}`,
+    );
+  }
   const report = intake.render(result, prepared);
+  for (const field of expected.already_requested_fields || [])
+    assert.ok(
+      !report.includes(intake.questions[field]),
+      `Maintainer question repeated: ${field}`,
+    );
   for (const pattern of expected.forbidden_patterns || [])
     assert.doesNotMatch(report, new RegExp(pattern, "i"));
   // These are semantic fixture checks, not a guarantee of every paraphrase.

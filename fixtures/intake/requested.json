@@ -1,0 +1,46 @@
+{
+  "snapshot": {
+    "repository": "homeassistant-ai/ha-mcp-workflows-dev",
+    "issue": {
+      "number": 1,
+      "title": "[BUG] Il server non si connette",
+      "body": "Claude Desktop mostra 'MCP server disconnected' ogni volta che avvio il client su Windows 11.",
+      "html_url": "https://github.com/homeassistant-ai/ha-mcp-workflows-dev/issues/1",
+      "user": {
+        "login": "fixture-reporter",
+        "type": "User"
+      },
+      "state": "open",
+      "locked": false,
+      "labels": [
+        {
+          "name": "startup-bug"
+        }
+      ]
+    },
+    "comments": [
+      {
+        "id": 42,
+        "user": {
+          "login": "kingpanther13",
+          "type": "User"
+        },
+        "body": "Please provide the ha-mcp version and installation method.",
+        "created_at": "2026-09-14T01:00:00Z",
+        "html_url": "https://github.com/homeassistant-ai/ha-mcp-workflows-dev/issues/1#issuecomment-42"
+      }
+    ],
+    "events": [],
+    "roles": {
+      "fixture-reporter": "read",
+      "kingpanther13": "maintain"
+    }
+  },
+  "expected": {
+    "required_missing": ["ha_mcp_version", "install_method"],
+    "known_fields": ["client", "operating_system"],
+    "translation": true,
+    "agreed_scope": false,
+    "already_requested_fields": ["ha_mcp_version", "install_method"]
+  }
+}
