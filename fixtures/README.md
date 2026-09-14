@@ -62,15 +62,24 @@ stage requests version/install details; after the fixture reporter posts
 the App-owned needs-info label. Both stages verify one stable comment and zero
 writes on an identical replay. Never dispatch this workflow against production.
 
-The [first publication run](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/34791040807)
-stopped before any publication because `HA_MCP_APP_PRIVATE_KEY` was not yet
-available. App `ha-mcp` / ID `4934859` is installed; key provisioning is owned by
-the separate setup thread. After it finishes, rerun `request`, post the fixture
-answer as its reporter, then run `answered` against the latest canonical SHA.
-Do not claim live publication is verified until those runs pass. Later canonical
-review corrections add null-author handling, URL defanging, deleted-source
-events, permission-error continuation, and mandatory non-English translation;
-the dependency-free behavior suite now contains 18 tests.
+The initial publication attempt stopped safely because the App key was missing.
+Key provisioning is now complete for App `ha-mcp` / ID `4934859`. Both real stages
+passed, posting only to the bench:
+
+- [Request stage](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/34796530646)
+  on `87ffaa099983c3cea51fa503d7bbbfd4abc2653c`: created the App-owned comment,
+  added needs-info, and confirmed zero writes on an identical replay.
+- [Answered stage](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/34796841616)
+  on `79f3e010d72ab13417106dc265fec85b74287dca`: updated the same comment
+  (`5657835822`), showed the supplied environment facts, removed only the
+  App-owned label, and confirmed zero writes on another identical replay.
+
+The final fixture has only `workflow-fixture` and one App-owned summary plus
+its reporter's synthetic reply. No product issue or PR was changed by the bench.
+Later canonical review corrections cover null authors, URL defanging, source
+comment deletions, permission-error continuation, required translations, visible
+reported facts, bounded transient-write retries and retained labels on failed
+closures. The dependency-free behavior suite now contains 23 tests.
 
 ### Existing report fixture inventory
 
