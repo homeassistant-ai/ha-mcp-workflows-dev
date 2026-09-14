@@ -99,6 +99,13 @@ now reads `role_name` for both the original dispatcher and the rerunning actor:
 admission in the trusted bench workflow; it does not replace GitHub's repository
 and workflow-editing access controls.
 
+The final product revision `63499f4859124ff35cdb43503bdd18aeb6d5b2c0` passed the
+[full PR pipeline](https://github.com/homeassistant-ai/ha-mcp/actions/runs/34797850288),
+[all six HAOS lanes](https://github.com/homeassistant-ai/ha-mcp/actions/runs/34797850319),
+and CodeQL. [PR #2447](https://github.com/homeassistant-ai/ha-mcp/pull/2447) was
+marked ready for review and KP13 was requested. Activation remains tied to the
+product PR merge; no live product issue was used for publication testing.
+
 ### Existing report fixture inventory
 
 `manifest.json` pins the synthetic titles, bodies, PR patch files and expected
