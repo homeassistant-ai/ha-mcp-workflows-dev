@@ -143,6 +143,12 @@ lock changes have matching triggers; stale publication emits a warning.
 Omitting the reusable action's `web-search` input passes no CLI override;
 documentation intake explicitly disables it. Omitted-input behavior is tested.
 
+CodeRabbit then identified a deleted comment author in reminder deduplication.
+Product commit `1a5a018acdb4d62110e228157413719e346e4e91` guards that access;
+all 41 Node cases passed, including a reminder fixture confirming that a null
+author neither suppresses the reminder nor interrupts later issues in the batch.
+This correction changes no model contract and required no new publication test.
+
 ### Existing report fixture inventory
 
 `manifest.json` pins the synthetic titles, bodies, PR patch files and expected
