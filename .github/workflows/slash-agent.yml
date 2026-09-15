@@ -1,0 +1,215 @@
+name: Slash coding bench
+
+on:
+  workflow_dispatch:
+    inputs:
+      action-ref:
+        description: Trusted immutable product SHA.
+        required: true
+        type: string
+      publish:
+        description: Publish only to the manifest slash fixture and its derived PR.
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+  actions: read
+  checks: read
+  statuses: read
+
+concurrency:
+  group: slash-bench
+  cancel-in-progress: false
+  queue: max
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    outputs:
+      mode: ${{ steps.plan.outputs.mode }}
+      head: ${{ steps.plan.outputs.head }}
+      model: ${{ steps.plan.outputs.model }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        timeout-minutes: 2
+        with:
+          path: control
+          persist-credentials: false
+      - uses: ./control/.github/actions/prepare-subject
+        timeout-minutes: 4
+        with:
+          action-ref: ${{ inputs.action-ref }}
+      - name: Controller regressions
+        timeout-minutes: 1
+        run: node --test .test-subject/tests/js/slash-agent.test.mjs
+      - name: Collect manifest fixture
+        id: plan
+        timeout-minutes: 3
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HA_MCP_APP_SLUG: ${{ vars.HA_MCP_APP_SLUG }}
+        run: node control/scripts/slash-bench.mjs prepare
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        timeout-minutes: 1
+        with:
+          name: slash-plan
+          path: control/slash-state/plan.json
+          retention-days: 1
+          if-no-files-found: error
+
+  code:
+    needs: prepare
+    if: needs.prepare.outputs.mode == 'code'
+    runs-on: ubuntu-latest
+    timeout-minutes: 38
+    concurrency:
+      group: codex-auth-${{ github.repository }}
+      cancel-in-progress: false
+      queue: max
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        timeout-minutes: 2
+        with:
+          path: control
+          persist-credentials: false
+      - uses: ./control/.github/actions/prepare-subject
+        timeout-minutes: 4
+        with:
+          action-ref: ${{ inputs.action-ref }}
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        timeout-minutes: 2
+        with:
+          path: source
+          ref: ${{ needs.prepare.outputs.head }}
+          persist-credentials: false
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        timeout-minutes: 1
+        with:
+          name: slash-plan
+          path: control/slash-state
+      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        timeout-minutes: 2
+      - name: Prepare canonical prompt
+        timeout-minutes: 1
+        env:
+          SLASH_STATE_DIR: control/slash-state
+        run: node .test-subject/.github/slash-agent/main.mjs prompt
+      - name: Implement fixture with protected controller paths
+        id: codex
+        timeout-minutes: 18
+        uses: ./.test-subject/.github/actions/codex-run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        with:
+          codex-auth: ${{ secrets.CODEX_AUTH }}
+          model: ${{ needs.prepare.outputs.model }}
+          reasoning-effort: low
+          working-directory: source
+          sandbox: workspace-write
+          read-only-paths: |
+            control
+            .test-subject
+            source/.git
+          allow-shell: "true"
+          network-access: "true"
+          passthrough-env: GH_TOKEN
+          web-search: disabled
+          instructions-file: control/slash-state/prompt.txt
+          output-schema: control/slash-state/schema.json
+          timeout-minutes: "10"
+      - name: Package only manifest fixture changes
+        timeout-minutes: 2
+        env:
+          SLASH_STATE_DIR: control/slash-state
+          OUTPUT_PATH: ${{ steps.codex.outputs.output-path }}
+          CODEX_LOG_PATH: ${{ steps.codex.outputs.log-path }}
+          GH_TOKEN: ${{ github.token }}
+          HA_MCP_APP_SLUG: ${{ vars.HA_MCP_APP_SLUG }}
+        run: |
+          node .test-subject/.github/slash-agent/main.mjs package
+          node control/scripts/slash-bench.mjs verify
+      - name: Verify accepted scope inside the same sandbox
+        timeout-minutes: 1
+        run: |
+          codex sandbox --profile "$CODEX_ACTION_PROFILE" --permission-profile "$CODEX_ACTION_PROFILE" --cd "$CODEX_ACTION_WORKDIR" -- python3 -c '
+          import sys
+          sys.path.insert(0, "fixtures/slash")
+          from automation_state import set_enabled
+          source = {"id": "kitchen", "enabled": False}
+          assert set_enabled("automation", source, True) == {"id": "kitchen", "enabled": True}
+          assert source["enabled"] is False
+          assert set_enabled("automation", source, False)["enabled"] is False
+          try:
+              set_enabled("script", source, True)
+          except ValueError:
+              pass
+          else:
+              raise AssertionError("Scripts were explicitly excluded by the maintainer")
+          print("Accepted automation-only scope verified")
+          '
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        timeout-minutes: 1
+        with:
+          name: slash-result
+          path: control/slash-state/result.json
+          retention-days: 1
+          if-no-files-found: error
+      - name: Persist refreshed bench OAuth
+        timeout-minutes: 3
+        if: ${{ always() && steps.codex.outputs.auth-path != '' }}
+        uses: ./.test-subject/.github/actions/codex-update-auth
+        with:
+          codex-auth-path: ${{ steps.codex.outputs.auth-path }}
+          original-codex-auth: ${{ steps.codex.outputs.original-auth-path }}
+          gh-token: ${{ secrets.CODEX_AUTH_PAT }}
+          repository: ${{ github.repository }}
+
+  publish:
+    needs: [prepare, code]
+    if: ${{ always() && inputs.publish && needs.prepare.result == 'success' && (needs.code.result == 'success' || needs.code.result == 'skipped') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        timeout-minutes: 2
+        with:
+          path: control
+          persist-credentials: false
+      - uses: ./control/.github/actions/prepare-subject
+        timeout-minutes: 4
+        with:
+          action-ref: ${{ inputs.action-ref }}
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        timeout-minutes: 1
+        with:
+          name: slash-plan
+          path: control/slash-state
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        if: needs.code.result == 'success'
+        timeout-minutes: 1
+        with:
+          name: slash-result
+          path: control/slash-state
+      - id: app-token
+        timeout-minutes: 1
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3
+        with:
+          app-id: ${{ vars.HA_MCP_APP_ID }}
+          private-key: ${{ secrets.HA_MCP_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-issues: write
+          permission-pull-requests: write
+          permission-actions: read
+          permission-checks: read
+          permission-statuses: read
+      - name: Publish to the derived fixture PR
+        timeout-minutes: 5
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          TOKEN_APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
+          HA_MCP_APP_SLUG: ${{ vars.HA_MCP_APP_SLUG }}
+        run: node control/scripts/slash-bench.mjs publish

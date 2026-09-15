@@ -100,6 +100,15 @@
       "title": "[FIXTURE] Issue intake publication and label ownership",
       "body": "This issue is synthetic test data for the issue documentation workflow.\n\nThe dashboard call hangs. The installation method and version have not been supplied.\n\nThe bench will update one App-owned summary and exercise needs-info ownership.\nNo Home Assistant instance or production issue is involved.\n",
       "expected": {}
+    },
+    {
+      "key": "slash-coding",
+      "number": 70,
+      "kind": "issue",
+      "title": "[FIXTURE] Slash agent scope and reviewer continuation",
+      "body": "Synthetic workflow fixture, inspired by the scope clarification in ha-mcp #2404.\n\nRequest: implement enable/disable for automations and scripts in fixtures/slash/automation_state.py. The helper receives a target kind, current state and requested enabled flag.\n\nThis issue is test data only. No Home Assistant instance or product issue is involved. The slash bench may create exactly one derived PR on its deterministic agents/issue-N branch and continue that PR; its checkpoint links the derived PR back to this manifest fixture.\n",
+      "expected": {},
+      "derived_branch": "agents/issue-70"
     }
   ]
 }
