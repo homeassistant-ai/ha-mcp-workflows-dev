@@ -8,6 +8,37 @@ There is no canary. Only maintainers may dispatch actions with bench secrets.
 
 ## Scenarios
 
+### Slash coding and continuation — 2026-09-15
+
+The manual `slash-agent.yml` workflow uses manifest issue #70 and the canonical
+controller at a trusted full product SHA. Its model worker has a read-only gh
+token, workspace-write access to the source checkout, and explicit read-only
+protection for the controller checkout and Git metadata. Publication is a
+separate, opt-in job on a fresh runner; only `fixtures/slash/` changes and the
+fixture's derived `agents/issue-70` PR are permitted. No product issue is changed.
+
+The fixture mirrors the scope lesson from #2404: its opening request includes
+scripts, but the maintainer clarification approves automations only. The worker
+must inspect the conversation and implement the small state helper with tests.
+A separate fixed assertion, executed inside the same sandbox, verifies that
+scripts are rejected and the original state is preserved.
+
+[Astra run 35006731031](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/35006731031)
+passed on canonical `6a81c217e94a02c7774d7f7560644975238757d3`: the sandbox
+rejected writes to protected paths, gh read the fixture, ten regressions failed
+before implementation and passed afterward, the independent scope assertion
+passed, and OAuth persistence completed. Only the two fixture Python files
+changed. Publication was disabled for that run; no derived PR was created.
+
+The publication/real-review stage requires upgrading App `ha-mcp` from the intake
+permissions to Contents/Pull requests/Issues write plus Actions/Checks/Statuses
+read. GitHub sudo-mode reauthentication is currently pending. No App permissions
+have been changed and no extra key/token has been created for this stage.
+The canonical local suite covers creation, continuation, review replies,
+clarifications, readiness, scope/head races and partial-write recovery with
+simulated GitHub state. Those tests do not substitute for the pending live App
+publication test.
+
 ### Issue documentation (2026-09-13)
 
 `issue-intake.yml` tests the canonical `.github/issue-intake/` implementation
