@@ -45,6 +45,18 @@ interrupted reply/summary/checkpoint recovery and clarification-only readiness.
 Separate real GitHub reads verified PR review metadata and the App's editor
 identity on its existing intake fixture comment. Live publication remains pending.
 
+Product [PR #2467](https://github.com/homeassistant-ai/ha-mcp/pull/2467) is ready
+on `74bbe02edf6fd8532a14920bc84d2f5bcd639285`, stacked on unmerged #2447. The
+[full pipeline](https://github.com/homeassistant-ai/ha-mcp/actions/runs/35014009399),
+[six HAOS lanes](https://github.com/homeassistant-ai/ha-mcp/actions/runs/35014017781)
+and [CodeQL](https://github.com/homeassistant-ai/ha-mcp/actions/runs/35014012640)
+passed. Posted review threads were resolved. The proposed publishing exemption
+from the round cap was declined: recovery currently invokes a fresh model, so
+the four-invocation limit also applies to recovery; a maintainer resume resets it.
+No reviewers were assigned. The automatic ready-event Codex admission
+`35015865799` was cancelled before delivery to respect the no-review-request
+instruction. App permission activation and live publication remain unverified.
+
 The publication/real-review stage requires upgrading App `ha-mcp` from the intake
 permissions to Contents/Pull requests/Issues write plus Actions/Checks/Statuses
 read. GitHub sudo-mode reauthentication is currently pending. No App permissions
