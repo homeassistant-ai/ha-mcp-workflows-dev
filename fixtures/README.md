@@ -30,6 +30,13 @@ before implementation and passed afterward, the independent scope assertion
 passed, and OAuth persistence completed. Only the two fixture Python files
 changed. Publication was disabled for that run; no derived PR was created.
 
+[Sol run 35009823195](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/35009823195)
+passed on canonical `e330e8aab1ddb8cac5f4d9dcbb802f36f333fb3d`. Its maintainer
+command added strict boolean validation; nine regressions failed before the
+implementation and passed afterward. Protected paths, gh reads, the independent
+scope assertion and OAuth persistence passed again. Publication was disabled.
+These two live runs test model execution and packaging, not live PR continuation.
+
 The publication/real-review stage requires upgrading App `ha-mcp` from the intake
 permissions to Contents/Pull requests/Issues write plus Actions/Checks/Statuses
 read. GitHub sudo-mode reauthentication is currently pending. No App permissions
