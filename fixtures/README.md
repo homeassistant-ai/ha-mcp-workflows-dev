@@ -37,6 +37,14 @@ implementation and passed afterward. Protected paths, gh reads, the independent
 scope assertion and OAuth persistence passed again. Publication was disabled.
 These two live runs test model execution and packaging, not live PR continuation.
 
+[Final Sol replay 35014362274](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/35014362274)
+passed on `74bbe02edf6fd8532a14920bc84d2f5bcd639285`, including the new GraphQL
+editor-aware collection with the read-only job token. The canonical controller
+suite has 36 cases, including editor impersonation, Bot identity normalization,
+interrupted reply/summary/checkpoint recovery and clarification-only readiness.
+Separate real GitHub reads verified PR review metadata and the App's editor
+identity on its existing intake fixture comment. Live publication remains pending.
+
 The publication/real-review stage requires upgrading App `ha-mcp` from the intake
 permissions to Contents/Pull requests/Issues write plus Actions/Checks/Statuses
 read. GitHub sudo-mode reauthentication is currently pending. No App permissions
