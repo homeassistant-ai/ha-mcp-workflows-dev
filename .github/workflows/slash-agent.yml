@@ -51,7 +51,7 @@ jobs:
         timeout-minutes: 3
         env:
           GH_TOKEN: ${{ github.token }}
-          HA_MCP_APP_SLUG: ${{ vars.HA_MCP_APP_SLUG }}
+          HA_MCP_APP_SLUG: ${{ vars.HA_MCP_AGENT_APP_SLUG }}
         run: node control/scripts/slash-bench.mjs prepare
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         timeout-minutes: 1
@@ -131,7 +131,7 @@ jobs:
           OUTPUT_PATH: ${{ steps.codex.outputs.output-path }}
           CODEX_LOG_PATH: ${{ steps.codex.outputs.log-path }}
           GH_TOKEN: ${{ github.token }}
-          HA_MCP_APP_SLUG: ${{ vars.HA_MCP_APP_SLUG }}
+          HA_MCP_APP_SLUG: ${{ vars.HA_MCP_AGENT_APP_SLUG }}
         run: |
           node .test-subject/.github/slash-agent/main.mjs package
           node control/scripts/slash-bench.mjs verify
@@ -201,8 +201,8 @@ jobs:
         timeout-minutes: 1
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3
         with:
-          app-id: ${{ vars.HA_MCP_APP_ID }}
-          private-key: ${{ secrets.HA_MCP_APP_PRIVATE_KEY }}
+          app-id: ${{ vars.HA_MCP_AGENT_APP_ID }}
+          private-key: ${{ secrets.HA_MCP_AGENT_APP_PRIVATE_KEY }}
           permission-contents: write
           permission-issues: write
           permission-pull-requests: write
@@ -214,5 +214,5 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           TOKEN_APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
-          HA_MCP_APP_SLUG: ${{ vars.HA_MCP_APP_SLUG }}
+          HA_MCP_APP_SLUG: ${{ vars.HA_MCP_AGENT_APP_SLUG }}
         run: node control/scripts/slash-bench.mjs publish
