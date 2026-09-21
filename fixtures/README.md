@@ -43,28 +43,37 @@ editor-aware collection with the read-only job token. The canonical controller
 suite has 36 cases, including editor impersonation, Bot identity normalization,
 interrupted reply/summary/checkpoint recovery and clarification-only readiness.
 Separate real GitHub reads verified PR review metadata and the App's editor
-identity on its existing intake fixture comment. Live publication remains pending.
+identity on its existing intake fixture comment. The later runs below add live
+publication and continuation coverage.
 
-Product [PR #2467](https://github.com/homeassistant-ai/ha-mcp/pull/2467) is ready
-on `74bbe02edf6fd8532a14920bc84d2f5bcd639285`, stacked on unmerged #2447. The
-[full pipeline](https://github.com/homeassistant-ai/ha-mcp/actions/runs/35014009399),
-[six HAOS lanes](https://github.com/homeassistant-ai/ha-mcp/actions/runs/35014017781)
-and [CodeQL](https://github.com/homeassistant-ai/ha-mcp/actions/runs/35014012640)
-passed. Posted review threads were resolved. The proposed publishing exemption
-from the round cap was declined: recovery currently invokes a fresh model, so
-the four-invocation limit also applies to recovery; a maintainer resume resets it.
-No reviewers were assigned. The automatic ready-event Codex admission
-`35015865799` was cancelled before delivery to respect the no-review-request
-instruction. App permission activation and live publication remain unverified.
+Product [PR #2467](https://github.com/homeassistant-ai/ha-mcp/pull/2467) was
+resynchronized with `master` after #2447's squash merge and adds `/terra`,
+issue-only answers and the dedicated App boundary. Posted review threads remain
+resolved and no reviewers were assigned. The proposed publishing exemption from
+the round cap was declined: recovery invokes a fresh model, so the four-invocation
+limit also applies to recovery; a maintainer resume resets it.
 
-The publication/real-review stage requires upgrading App `ha-mcp` from the intake
-permissions to Contents/Pull requests/Issues write plus Actions/Checks/Statuses
-read. GitHub sudo-mode reauthentication is currently pending. No App permissions
-have been changed and no extra key/token has been created for this stage.
-The canonical local suite covers creation, continuation, review replies,
-clarifications, readiness, scope/head races and partial-write recovery with
-simulated GitHub state. Those tests do not substitute for the pending live App
-publication test.
+Dedicated App `ha-mcp-agent` (App ID `5015067`, installation `163356588`) is
+installed only on `ha-mcp` and `ha-mcp-workflows-dev`. Its token was validated
+with Contents/Pull requests/Issues write plus Actions/Checks/Statuses read and
+implicit Metadata read. The narrower `ha-mcp` App remains isolated for issue
+intake. Product and bench use repository-local variables, private-key secrets and
+Codex OAuth credentials; the downloaded private key was removed after validation.
+
+[Live publication run 35547275503](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/35547275503)
+passed against canonical `9d7594c0f0e6c23f30997412f06ebe28564ca557`.
+Sol reran the nine focused regressions, the fresh publisher minted the dedicated
+App token, and the App created checkpoint, commit, branch and
+[fixture PR #71](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/pull/71),
+then marked it ready. Only the two manifest-authorized fixture files changed.
+
+[Live continuation run 35547570894](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/35547570894)
+passed against canonical `d52c6dca3399116865d7d47db80dac9dd6978a3a`.
+A maintainer review asked for evidence without a code change. A fresh Sol worker
+reconstructed the session from the App checkpoint, answered the inline thread,
+resolved it, posted one review summary and returned the same PR to ready. The head
+remained `afd062dbe9cf3c746bee51ca7140e21d00f30051` with one commit, proving the
+continuation was comment-only and did not manufacture a patch.
 
 ### Issue documentation (2026-09-13)
 
