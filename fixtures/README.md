@@ -75,6 +75,24 @@ resolved it, posted one review summary and returned the same PR to ready. The he
 remained `afd062dbe9cf3c746bee51ca7140e21d00f30051` with one commit, proving the
 continuation was comment-only and did not manufacture a patch.
 
+### Review corrections — 2026-09-26
+
+After KingPanther13's review, the product branch was synchronized with
+`master` and corrected to skip unrelated PRs before deep collection, fail
+closed when protected-path verification loses its inputs, preserve generated
+PR sections, and report stale publication as a failed run. The deterministic
+controller suite now covers 53 scenarios, including real symlink fixtures,
+event admission, pagination, four-turn accounting, Unicode checkpoint sizes
+and the executable workflow entrypoint.
+
+The [Linux contract run](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/36271374182)
+passed against canonical `d84b904e498b0d534a03dfadbeb206646d4788d5`,
+including the protected-path probe with valid and malformed inputs. The
+[Terra smoke](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/36271376262)
+passed against the same SHA: the `gpt-5.6-terra` worker returned the exact
+Hello World output, and the bench persisted its distinct OAuth state. These
+manual runs did not publish or modify fixture issues or PRs.
+
 ### Issue documentation (2026-09-13)
 
 `issue-intake.yml` tests the canonical `.github/issue-intake/` implementation
