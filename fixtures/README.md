@@ -81,7 +81,7 @@ After KingPanther13's review, the product branch was synchronized with
 `master` and corrected to skip unrelated PRs before deep collection, fail
 closed when protected-path verification loses its inputs, preserve generated
 PR sections, and report stale publication as a failed run. The deterministic
-controller suite now covers 53 scenarios, including real symlink fixtures,
+controller suite now covers 54 scenarios, including real symlink fixtures,
 event admission, pagination, four-turn accounting, Unicode checkpoint sizes
 and the executable workflow entrypoint.
 
@@ -92,6 +92,14 @@ including the protected-path probe with valid and malformed inputs. The
 passed against the same SHA: the `gpt-5.6-terra` worker returned the exact
 Hello World output, and the bench persisted its distinct OAuth state. These
 manual runs did not publish or modify fixture issues or PRs.
+
+The requested model/CLI refresh was verified on canonical
+`c9c30e63e74965f7da0dc8c4f88004b0deaf8b4f`: the
+[GPT-6 Sol smoke](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/36272251396)
+passed with Codex CLI `0.157.1`, exact `Hello world` output and OAuth
+persistence. The [authenticated gh smoke](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/36272253894)
+also passed with `gpt-6-sol` and the read-only caller token. No fixture issue
+or PR was modified by these runs.
 
 ### Issue documentation (2026-09-13)
 
