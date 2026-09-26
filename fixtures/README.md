@@ -101,6 +101,12 @@ persistence. The [authenticated gh smoke](https://github.com/homeassistant-ai/ha
 also passed with `gpt-6-sol` and the read-only caller token. No fixture issue
 or PR was modified by these runs.
 
+The [final-head Linux contracts](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/36274029754)
+passed against `25c07dd05ef55f17f36727109ae8ed09d68e1275`, after the
+concurrency and review corrections. This run exercises the real `jq` probe
+that is unavailable on the local Windows test host. It uses no OAuth secret
+and does not modify a fixture issue or PR.
+
 ### Issue documentation (2026-09-13)
 
 `issue-intake.yml` tests the canonical `.github/issue-intake/` implementation
