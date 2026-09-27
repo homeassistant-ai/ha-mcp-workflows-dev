@@ -76,6 +76,16 @@ jobs:
             sudo install -m 0644 "$profile_source" /etc/apparmor.d/bwrap-userns-restrict
             sudo apparmor_parser -r /etc/apparmor.d/bwrap-userns-restrict
           fi
+      - name: Wait for Docker daemon
+        timeout-minutes: 2
+        run: |
+          set -euo pipefail
+          for attempt in {1..12}; do
+            if timeout 10s docker info >/dev/null 2>&1; then exit 0; fi
+            sleep 5
+          done
+          echo '::error::Docker daemon remained unavailable.'
+          exit 1
       - name: Prepare bench-only OAuth
         id: auth
         timeout-minutes: 1
