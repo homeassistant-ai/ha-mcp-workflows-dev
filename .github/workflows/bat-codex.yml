@@ -1,0 +1,124 @@
+name: BAT Codex story
+
+on:
+  workflow_dispatch:
+    inputs:
+      action-ref:
+        description: Trusted full ha-mcp commit SHA to test.
+        required: true
+        type: string
+      model:
+        description: Codex model under test.
+        required: true
+        type: choice
+        options: [gpt-6-astra, gpt-6-sol, gpt-5.6-terra]
+      story:
+        description: Existing BAT story to test.
+        required: true
+        type: choice
+        options: [s01_automation_sunset_lights, s05_entity_discovery]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: codex-auth-${{ github.repository }}
+  cancel-in-progress: false
+  queue: max
+
+jobs:
+  story:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    env:
+      UV_EXCLUDE_NEWER: 7 days
+    steps:
+      - name: Checkout bench
+        timeout-minutes: 2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - name: Validate maintainer and immutable product revision
+        timeout-minutes: 5
+        uses: ./.github/actions/prepare-subject
+        with:
+          action-ref: ${{ inputs.action-ref }}
+      - name: Checkout complete product test subject
+        timeout-minutes: 4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          repository: homeassistant-ai/ha-mcp
+          ref: ${{ inputs.action-ref }}
+          path: subject
+          persist-credentials: false
+      - name: Verify tested SHA
+        timeout-minutes: 1
+        env:
+          SUBJECT_SHA: ${{ inputs.action-ref }}
+        run: |
+          set -euo pipefail
+          [[ "$(git -C subject rev-parse HEAD)" == "$SUBJECT_SHA" ]]
+      - name: Set up uv
+        timeout-minutes: 2
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          version: "0.12.9"
+      - name: Install pinned Codex and Bubblewrap sandbox
+        timeout-minutes: 8
+        run: |
+          set -euo pipefail
+          npm install --global --no-audit --no-fund @openai/codex@0.157.1
+          [[ "$(codex --version)" == 'codex-cli 0.157.1' ]]
+          sudo apt-get update --quiet
+          sudo apt-get install --yes --no-install-recommends apparmor-profiles apparmor-utils bubblewrap
+          profile_source=/usr/share/apparmor/extra-profiles/bwrap-userns-restrict
+          if [[ -f "$profile_source" ]]; then
+            sudo install -m 0644 "$profile_source" /etc/apparmor.d/bwrap-userns-restrict
+            sudo apparmor_parser -r /etc/apparmor.d/bwrap-userns-restrict
+          fi
+      - name: Prepare bench-only OAuth
+        id: auth
+        timeout-minutes: 1
+        env:
+          CODEX_AUTH_INPUT: ${{ secrets.CODEX_AUTH }}
+        run: |
+          set -euo pipefail
+          [[ -n "$CODEX_AUTH_INPUT" ]]
+          install -d -m 700 "$RUNNER_TEMP/bat-codex"
+          printf '%s' "$CODEX_AUTH_INPUT" > "$RUNNER_TEMP/bat-codex/auth.json"
+          chmod 600 "$RUNNER_TEMP/bat-codex/auth.json"
+          jq -e 'type == "object" and (.auth_mode | type == "string" and length > 0)' "$RUNNER_TEMP/bat-codex/auth.json" >/dev/null
+          cp "$RUNNER_TEMP/bat-codex/auth.json" "$RUNNER_TEMP/bat-codex/original.json"
+          chmod 600 "$RUNNER_TEMP/bat-codex/original.json"
+          echo "CODEX_HOME=$RUNNER_TEMP/bat-codex" >> "$GITHUB_ENV"
+      - name: Execute real BAT story on disposable HA
+        timeout-minutes: 32
+        working-directory: subject
+        env:
+          BAT_MODEL: ${{ inputs.model }}
+          BAT_STORY: ${{ inputs.story }}
+        run: |
+          set -euo pipefail
+          uv run --frozen python tests/uat/stories/run_story.py \
+            "tests/uat/stories/catalog/$BAT_STORY.yaml" \
+            --agents codex --model "$BAT_MODEL" \
+            --results-file "$RUNNER_TEMP/bat-codex-results.jsonl" -- --timeout 300
+      - name: Summarize observed BAT result
+        if: ${{ always() }}
+        timeout-minutes: 1
+        run: |
+          set -euo pipefail
+          if [[ -f "$RUNNER_TEMP/bat-codex-results.jsonl" ]]; then
+            jq -r '"| Model | Story | Passed | Tool calls | Failures | Turns | Input tokens | Output tokens |\n|---|---|---:|---:|---:|---:|---:|---:|\n| \(.model) | \(.story) | \(.passed) | \(.tool_calls) | \(.tool_failures) | \(.turns) | \(.tokens_input // "n/a") | \(.tokens_output // "n/a") |"' "$RUNNER_TEMP/bat-codex-results.jsonl" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo 'BAT produced no result row; inspect the failed step.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Persist refreshed bench OAuth
+        if: ${{ always() && steps.auth.outcome == 'success' }}
+        timeout-minutes: 3
+        uses: ./.test-subject/.github/actions/codex-update-auth
+        with:
+          codex-auth-path: ${{ runner.temp }}/bat-codex/auth.json
+          original-codex-auth: ${{ runner.temp }}/bat-codex/original.json
+          gh-token: ${{ secrets.CODEX_AUTH_PAT }}
+          repository: ${{ github.repository }}

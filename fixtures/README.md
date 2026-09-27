@@ -6,6 +6,14 @@ out its actions, workflows and unit-contract sources under `.test-subject`.
 `model` defaults to `gpt-6-astra`.
 There is no canary. Only maintainers may dispatch actions with bench secrets.
 
+The manual `BAT Codex story` workflow runs one existing product BAT story on a
+full trusted product SHA with the bench's own OAuth secret. Its model choices
+are Astra, Sol and Terra. It starts disposable Home Assistant test state, runs
+Codex with MCP only, records the normal BAT result row and prints bounded
+metrics in the Actions summary. Dispatch the same story once per model and
+compare baseline and candidate SHAs separately. This workflow never writes to
+the product repository or bench fixture issues/PRs.
+
 ## Scenarios
 
 ### Slash coding and continuation — 2026-09-15
