@@ -37,6 +37,8 @@ def api(path, method="GET", payload=None):
 
 
 def expected_body(fixture):
+    if fixture.get("verbatim_body"):
+        return fixture["body"]
     return (
         fixture["body"].strip()
         + f"\n\n<!-- workflow-fixture:{fixture['key']} -->"

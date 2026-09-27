@@ -17,13 +17,19 @@ const api = new API(repository);
 const manifest = JSON.parse(
   readFileSync("control/fixtures/manifest.json", "utf8"),
 );
-const fixture = manifest.fixtures.find((f) => f.key === "slash-coding");
-assert.equal(fixture?.number, 70);
+const fixtureNumber = Number(process.env.FIXTURE_NUMBER || "70");
+assert.ok(Number.isSafeInteger(fixtureNumber) && fixtureNumber > 0);
+const fixture = manifest.fixtures.find(
+  (f) =>
+    f.number === fixtureNumber &&
+    ["slash-coding", "slash-coding-final"].includes(f.key),
+);
+assert.ok(fixture, "Only manifest-listed slash fixtures are allowed");
 assert.equal(manifest.repository, repository);
 const app = process.env.HA_MCP_APP_SLUG;
 const operation = process.argv[2];
 const directory = "control/slash-state";
-const current = collect(api, fixture.number, app);
+const current = collect(api, fixtureNumber, app);
 assert.equal(current.issue.title, fixture.title);
 assert.ok(current.issue.labels.some((l) => l.name === "workflow-fixture"));
 
@@ -40,7 +46,7 @@ if (operation === "prepare") {
   assert.ok(latest, "The fixture requires a maintainer command");
   const plan = prepare(
     api,
-    { number: fixture.number, commandId: latest.id, automatic: true },
+    { number: fixtureNumber, commandId: latest.id, automatic: true },
     app,
   );
   assert.ok(plan, "No pending fixture work");

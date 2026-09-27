@@ -109,6 +109,16 @@
       "body": "Synthetic workflow fixture, inspired by the scope clarification in ha-mcp #2404.\n\nRequest: implement enable/disable for automations and scripts in fixtures/slash/automation_state.py. The helper receives a target kind, current state and requested enabled flag.\n\nThis issue is test data only. No Home Assistant instance or product issue is involved. The slash bench may create exactly one derived PR on its deterministic agents/issue-N branch and continue that PR; its checkpoint links the derived PR back to this manifest fixture.\n",
       "expected": {},
       "derived_branch": "agents/issue-70"
+    },
+    {
+      "key": "slash-coding-final",
+      "number": 72,
+      "kind": "issue",
+      "title": "[FIXTURE] Final-head slash agent lifecycle",
+      "body": "[Agent]\n\nSynthetic workflow fixture for the final-head slash-agent end-to-end test. No Home Assistant instance or product issue is involved.\n\nInitial request: implement an enable/disable helper for automations and scripts in `fixtures/slash/automation_state.py`.\n\nMaintainer-approved scope for this test: **automations only**. Return a new mapping with `enabled` set to the requested boolean, preserve the other keys, and leave the input unchanged. Reject unsupported kinds with `ValueError` and non-boolean `enabled` values (including `0`, `1`, and strings) with `TypeError`. Keep code and focused tests in `fixtures/slash/`.\n\nThe bench may create one derived PR on `agents/issue-N` and resume it after an inline review comment. It must not alter the product repository.\n",
+      "verbatim_body": true,
+      "expected": {},
+      "derived_branch": "agents/issue-72"
     }
   ]
 }

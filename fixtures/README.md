@@ -107,6 +107,14 @@ concurrency and review corrections. This run exercises the real `jq` probe
 that is unavailable on the local Windows test host. It uses no OAuth secret
 and does not modify a fixture issue or PR.
 
+For a final-head live lifecycle replay, manifest issue
+[#72](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/issues/72)
+is isolated from the historical issue #70 and PR #71. The manual
+`slash-agent.yml` dispatch accepts `fixture_number=72`; publication remains
+confined to the manifest issue, its `agents/issue-72` branch and the derived
+fixture PR. The test starts with the incomplete `fixtures/slash/` helper on
+bench `master`, then verifies a fresh PR and a later inline-review continuation.
+
 ### Issue documentation (2026-09-13)
 
 `issue-intake.yml` tests the canonical `.github/issue-intake/` implementation

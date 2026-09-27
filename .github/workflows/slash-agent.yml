@@ -11,6 +11,10 @@ on:
         description: Publish only to the manifest slash fixture and its derived PR.
         type: boolean
         default: false
+      fixture_number:
+        description: Manifest-listed slash fixture issue number.
+        type: number
+        default: 70
 
 permissions:
   contents: read
@@ -19,6 +23,9 @@ permissions:
   actions: read
   checks: read
   statuses: read
+
+env:
+  FIXTURE_NUMBER: ${{ inputs.fixture_number }}
 
 concurrency:
   group: slash-bench
