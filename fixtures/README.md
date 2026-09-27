@@ -115,6 +115,26 @@ confined to the manifest issue, its `agents/issue-72` branch and the derived
 fixture PR. The test starts with the incomplete `fixtures/slash/` helper on
 bench `master`, then verifies a fresh PR and a later inline-review continuation.
 
+The initial dispatch [36281637454](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/36281637454)
+stopped during bench admission, before model execution or publication: the
+bench had treated a new command as an automatic wakeup requiring an existing
+checkpoint. The bench now distinguishes a fresh command from a continuation.
+
+[Creation run 36281735752](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/36281735752)
+passed on product `25c07dd05ef55f17f36727109ae8ed09d68e1275` with
+`gpt-6-sol` and Codex CLI `0.157.1`. Eleven focused tests failed on the
+placeholder and passed after implementation; the protected-path scope check
+passed. The App published only the two allowlisted files and marked new
+[fixture PR #73](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/pull/73)
+ready.
+
+An inline maintainer comment requested one more regression. The
+[continuation run 36282022992](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/36282022992)
+reconstructed the App checkpoint on a fresh worker using the same model and CLI,
+added one commit to the same PR, passed 12 focused tests, replied in the original
+review thread, resolved it and returned PR #73 to ready. The checkpoint reached
+round 2/4; no second PR or product-repository write occurred.
+
 ### Issue documentation (2026-09-13)
 
 `issue-intake.yml` tests the canonical `.github/issue-intake/` implementation
