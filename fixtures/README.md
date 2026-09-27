@@ -14,6 +14,31 @@ metrics in the Actions summary. Dispatch the same story once per model and
 compare baseline and candidate SHAs separately. This workflow never writes to
 the product repository or bench fixture issues/PRs.
 
+### Codex BAT story validation — 2026-09-27
+
+On product SHA `3ff8fbfe22c8b61b7987c14f32dbb9230205ba88`, manual
+[`s01` Sol](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/36294000902)
+and [`s01` Astra](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/36294005556)
+passed. The bench then ran the cleanup-only final product SHA
+`32c587a2be27ec09f27a3c28a45587373efb626a`:
+[`s01` Sol](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/36294437700)
+and [`s01` Terra](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/36294571704)
+passed. Each successful run started disposable HA, invoked the selected model,
+recorded MCP tool calls including `ha_config_set_automation`, and passed the
+story's independent checks for the automation's existence and enabled state.
+Those checks do not independently validate the exact trigger/action structure;
+the agent response and readback offer additional inspection, not a stronger BAT
+pass condition. The CLI was pinned to `0.157.1`; bench OAuth persistence
+completed in each run. No product write occurred.
+
+An earlier [Terra dispatch](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/36294010099)
+failed before HA startup because the BAT's five-second Docker preflight timed
+out. The bench workflow now waits for Docker before starting the story. The
+later Terra run above passed with that step. Earlier Sol attempts also exposed
+Codex's noninteractive MCP approval boundary: read-only and workspace file
+profiles both rejected the HA write; explicitly approving only the disposable
+HA MCP server resolved it without disabling the file sandbox.
+
 ## Scenarios
 
 ### Slash coding and continuation — 2026-09-15
