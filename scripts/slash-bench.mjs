@@ -46,7 +46,7 @@ if (operation === "prepare") {
   assert.ok(latest, "The fixture requires a maintainer command");
   const plan = prepare(
     api,
-    { number: fixtureNumber, commandId: latest.id, automatic: true },
+    { number: fixtureNumber, commandId: latest.id, automatic: !!current.session },
     app,
   );
   assert.ok(plan, "No pending fixture work");
