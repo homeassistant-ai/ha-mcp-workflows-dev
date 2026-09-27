@@ -19,6 +19,14 @@ def test_automation_can_be_disabled_without_mutating_input():
     assert current == {"id": "kitchen", "enabled": True, "alias": "Lights"}
 
 
+def test_empty_automation_state_returns_enabled_without_mutating_input():
+    current = {}
+    updated = set_enabled("automation", current, True)
+    assert updated == {"enabled": True}
+    assert updated is not current
+    assert current == {}
+
+
 @pytest.mark.parametrize("kind", ["script", "scene", "Automation", ""])
 def test_unsupported_kind_raises_value_error_without_mutating_input(kind):
     current = {"id": "kitchen", "enabled": False}
