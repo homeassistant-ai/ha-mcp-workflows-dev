@@ -110,6 +110,7 @@ jobs:
           set -euo pipefail
           if [[ -f "$RUNNER_TEMP/bat-codex-results.jsonl" ]]; then
             jq -r '"| Model | Story | Passed | Tool calls | Failures | Turns | Input tokens | Output tokens |\n|---|---|---:|---:|---:|---:|---:|---:|\n| \(.model) | \(.story) | \(.passed) | \(.tool_calls) | \(.tool_failures) | \(.turns) | \(.tokens_input // "n/a") | \(.tokens_output // "n/a") |"' "$RUNNER_TEMP/bat-codex-results.jsonl" >> "$GITHUB_STEP_SUMMARY"
+            jq -c '{model,story,passed,tool_sequence,verify_results,agent_response:(.agent_response // "" | .[0:1500])}' "$RUNNER_TEMP/bat-codex-results.jsonl" | sed 's/^/BAT_DIAGNOSTIC /'
           else
             echo 'BAT produced no result row; inspect the failed step.' >> "$GITHUB_STEP_SUMMARY"
           fi
