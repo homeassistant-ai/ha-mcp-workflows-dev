@@ -168,6 +168,13 @@ added one commit to the same PR, passed 12 focused tests, replied in the origina
 review thread, resolved it and returned PR #73 to ready. The checkpoint reached
 round 2/4; no second PR or product-repository write occurred.
 
+The [scoped wakeup-queue contract run](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/36521221745)
+passed all 71 Linux cases against product
+`4072d297c40cfa6acb591819b410d5f553dd023f`. It now includes the
+slash workflow shape and controller suite as well as protected-path probes.
+This manual contract run uses no OAuth secret or fixture publication; the live
+creation/continuation evidence above belongs to the earlier product SHA.
+
 ### Issue documentation (2026-09-13)
 
 `issue-intake.yml` tests the canonical `.github/issue-intake/` implementation
