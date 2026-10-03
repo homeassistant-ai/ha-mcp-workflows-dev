@@ -1,0 +1,35 @@
+name: Synthetic slash session stages
+on:
+  workflow_call:
+    inputs:
+      event_source:
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  admit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Mark admission after acquiring the caller lock
+        timeout-minutes: 1
+        env:
+          SOURCE_EVENT: ${{ inputs.event_source }}
+        run: echo "Admitted $SOURCE_EVENT under the session lock"
+  code:
+    needs: admit
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Simulate a worker without a model or credential
+        timeout-minutes: 1
+        run: sleep 20
+  publish:
+    needs: [admit, code]
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Simulate publication on a fresh runner
+        timeout-minutes: 1
+        run: sleep 20

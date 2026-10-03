@@ -1,0 +1,60 @@
+name: Slash session lock probe
+on:
+  workflow_dispatch:
+    inputs:
+      action-ref:
+        description: Immutable product SHA to validate.
+        required: true
+        type: string
+      event_source:
+        description: Simulated source of the same fixture session.
+        required: true
+        type: choice
+        options: [comment, ci]
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+jobs:
+  route:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    outputs:
+      root: ${{ steps.route.outputs.root }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        timeout-minutes: 2
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/prepare-subject
+        timeout-minutes: 3
+        with:
+          action-ref: ${{ inputs.action-ref }}
+      - name: Route the issue or its PR through the canonical controller
+        id: route
+        timeout-minutes: 2
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_SOURCE: ${{ inputs.event_source }}
+          APP_SLUG: ${{ vars.HA_MCP_AGENT_APP_SLUG }}
+        run: |
+          node --input-type=module - <<'JS'
+          import { appendFileSync } from "node:fs";
+          import { resolve } from "node:path";
+          import { pathToFileURL } from "node:url";
+          const { API, sessionRoot } = await import(pathToFileURL(resolve(".test-subject/.github/slash-agent/github.mjs")));
+          const number = process.env.EVENT_SOURCE === "comment" ? 72 : 73;
+          const root = sessionRoot(new API(process.env.GITHUB_REPOSITORY), { number, automatic: true }, process.env.APP_SLUG);
+          if (root !== 72) throw Error("Unexpected fixture session root");
+          appendFileSync(process.env.GITHUB_OUTPUT, `root=${root}\n`);
+          console.log(`${process.env.EVENT_SOURCE} on #${number} routed to root #${root}`);
+          JS
+  session:
+    needs: route
+    concurrency:
+      group: slash-agent-session-${{ github.repository }}-${{ needs.route.outputs.root }}
+      cancel-in-progress: false
+      queue: max
+    uses: ./.github/workflows/_slash-session-lock-probe.yml
+    with:
+      event_source: ${{ inputs.event_source }}
