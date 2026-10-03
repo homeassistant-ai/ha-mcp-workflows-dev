@@ -19,6 +19,14 @@ def test_automation_can_be_disabled_without_mutating_input():
     assert current == {"id": "kitchen", "enabled": True, "alias": "Lights"}
 
 
+def test_enabling_already_enabled_automation_returns_new_mapping():
+    current = {"id": "kitchen", "enabled": True, "alias": "Lights"}
+    updated = set_enabled("automation", current, True)
+    assert updated == current
+    assert updated is not current
+    assert current == {"id": "kitchen", "enabled": True, "alias": "Lights"}
+
+
 def test_empty_automation_state_returns_enabled_without_mutating_input():
     current = {}
     updated = set_enabled("automation", current, True)
