@@ -52,7 +52,7 @@ jobs:
           action-ref: ${{ inputs.action-ref }}
       - name: Controller regressions
         timeout-minutes: 1
-        run: node --test .test-subject/tests/js/slash-agent.test.mjs
+        run: node --test .test-subject/tests/js/slash-agent*.test.mjs
       - name: Collect manifest fixture
         id: plan
         timeout-minutes: 3
