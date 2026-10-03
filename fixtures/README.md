@@ -193,13 +193,14 @@ started at 03:54:53. This proves the reusable-call lock spans multiple jobs,
 including time waiting for a publisher runner. Probe stages are synthetic;
 they use no model, OAuth or write credential.
 
-[Current-head Linux contracts](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/37094945930)
-passed 72 cases on `f3950e9b00285c4047f5e9a3f7ed87263370a8b9`, including
+[Current-head Linux contracts](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/37095700408)
+passed 72 cases on `ef77f5b9c3da3908a268170dae25f279ee9a9411`, including
 the six workflow contracts and all 61 Node scenarios through pytest.
 
 The [live reviewer continuation](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/37094589501)
 used `939f0bff4dfa482104b0b79d7d1672e9a47dba4b`, whose controller/actions
-are unchanged in final head `f3950e9b` (the later commit only splits tests).
+are unchanged in final head `ef77f5b9` (later commits only split tests and clean
+their imports to satisfy the module-size and CodeQL quality gates).
 GPT-6 Sol with CLI `0.157.1` added one fixture regression, passed 13 focused
 tests, appended commit `cefd300cf91580a48d1caa053a9230b0a51f90dc` on the same
 PR #73, replied to and resolved the supplied inline thread, and returned the
