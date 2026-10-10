@@ -175,8 +175,6 @@ slash workflow shape and controller suite as well as protected-path probes.
 This manual contract run uses no OAuth secret or fixture publication; the live
 creation/continuation evidence above belongs to the earlier product SHA.
 
-### Session admission and paid triggers — 2026-10-02 (America/Toronto)
-
 ### Reviewer fixes and current CLI/model — 2026-10-10
 
 Product `2f99ce12363d3434a83f1d68a9d87c268c9e479a` passed the
@@ -206,10 +204,24 @@ to ready at round 1/4. No duplicate code commit or PR was created. The final
 product head `ae4f31c3` only trims root guidance; the tested controller and action
 are unchanged. Real model output and publication stayed on the bench.
 
+The final controller `d2ce26d5b3baf2c665c106a175049016d5a98fae` also accounts
+for discarded worker attempts once, bounds retries and preserves renewed-command
+budgets. A discarded new task cannot regain readiness without a fresh worker.
+[Final-head Linux contracts](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/38058222550)
+passed 72 pytest cases, including all 75 Node controller scenarios.
+The [final-head live review](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/38058228870)
+handled a new synthetic thread after the previous feedback was recorded, passed
+14 tests, [replied](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/pull/73#discussion_r4237876768)
+and resolved it, and returned the same session to ready at round 2/4. It used
+GPT-6.1 Sol/CLI `0.162.1` and made no redundant edits or commits.
+[Terra authenticated gh](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/38057679911)
+also passed with `gpt-5.6-terra` and CLI `0.162.1`, confirming current access
+for the bench account; this does not guarantee future model availability.
+
 Manual smoke/report defaults now use GPT-6.1 Sol. Historical results below keep
 their original model and CLI identifiers. No canary or reviewer request was added.
 
-### Earlier session-lock validation
+### Session admission and paid triggers — 2026-10-02 (America/Toronto)
 
 The entry workflow now routes issue and PR events to the canonical issue root,
 then calls a reusable session workflow under one root-keyed concurrency lock.
