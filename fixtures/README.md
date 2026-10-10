@@ -238,6 +238,20 @@ invalidation and missing-history behavior are covered by controller regressions.
 Product `a55cbfee` changes only an unrelated HAOS test's inspection polling
 timeout; its controller and Codex action are identical to this tested revision.
 
+Final product `a55cbfee0f140b54a1af7b4655c417102a81057a` passed the
+[PR pipeline](https://github.com/homeassistant-ai/ha-mcp/actions/runs/38063690353),
+[all six HAOS lanes](https://github.com/homeassistant-ai/ha-mcp/actions/runs/38063690342),
+and [CodeQL Gate](https://github.com/homeassistant-ai/ha-mcp/actions/runs/38063690363).
+All 26 non-skipped checks were green, including CodeRabbit. A previous
+embedded/no-tools attempt had a Forecast.Solar setup timeout and HACS refresh
+error; its one rerun passed those cases but exceeded the custom-card inspection
+polling deadline. That deadline now matches the existing 90-second first-use
+window; all card assertions and the production per-request cutoff are retained.
+The final fresh run passed the full lane. CodeRabbit retains the documented
+manual-intervention tradeoff after a fourth-turn partial publication; no
+automatic artifact replay or budget override was added. The product PR still
+requires human approval; no merge or reviewer request was issued.
+
 ### Session admission and paid triggers — 2026-10-02 (America/Toronto)
 
 The entry workflow now routes issue and PR events to the canonical issue root,
