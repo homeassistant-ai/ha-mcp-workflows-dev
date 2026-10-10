@@ -3,12 +3,12 @@
 The product action is owned by `homeassistant-ai/ha-mcp`. Every manual bench
 workflow takes `action-ref`, a full trusted 40-character commit SHA, and checks
 out its actions, workflows and unit-contract sources under `.test-subject`.
-`model` defaults to `gpt-6-astra`.
+`model` defaults to `gpt-6.1-sol`.
 There is no canary. Only maintainers may dispatch actions with bench secrets.
 
 The manual `BAT Codex story` workflow runs one existing product BAT story on a
 full trusted product SHA with the bench's own OAuth secret. Its model choices
-are Astra, Sol and Terra. It starts disposable Home Assistant test state, runs
+are GPT-6.1 Sol, the previous GPT-6 Sol and Terra. It starts disposable Home Assistant test state, runs
 Codex with MCP only, records the normal BAT result row and prints bounded
 metrics in the Actions summary. Dispatch the same story once per model and
 compare baseline and candidate SHAs separately. This workflow never writes to
@@ -176,6 +176,40 @@ This manual contract run uses no OAuth secret or fixture publication; the live
 creation/continuation evidence above belongs to the earlier product SHA.
 
 ### Session admission and paid triggers — 2026-10-02 (America/Toronto)
+
+### Reviewer fixes and current CLI/model — 2026-10-10
+
+Product `2f99ce12363d3434a83f1d68a9d87c268c9e479a` passed the
+[Linux contracts](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/38057180985):
+72 pytest cases, including the Node behavior suite (72 scenarios). New cases
+exercise feedback removal, invalid slash-looking comments, visible refusal
+after closure, description notes, escaped task bounds and cached PR heads.
+
+The [authenticated gh smoke](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/38056776595)
+passed with GPT-6.1 Sol and CLI `0.162.1` at `1accef36`; the generic action is
+unchanged in `2f99ce12`. The run verifies actual gh execution and OAuth
+credential isolation, rather than trusting the model's final prose.
+
+The first [live continuation](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/38056790583)
+passed 14 fixture tests and appended commit `fa5816c0c8e6a16a9693c6a1c6a5803089de8b27`
+to PR #73, then stopped during publication. Post-failure reads showed unchanged
+sources, roles and threads; the new regression reproduces a cached old PR head
+after the ref append. The fix accepts only the expected new Git ref and still
+rejects another writer's advance; stale-head checks cannot mark the PR ready.
+
+A fresh synthetic maintainer command renewed the four-round budget. The
+[recovery continuation](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/38057178549)
+at `2f99ce12` with GPT-6.1 Sol/CLI `0.162.1` verified the existing commit,
+passed 14 tests, [replied](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/pull/73#discussion_r4237829841)
+to and resolved the synthetic float-regression thread, and returned session #72
+to ready at round 1/4. No duplicate code commit or PR was created. The final
+product head `ae4f31c3` only trims root guidance; the tested controller and action
+are unchanged. Real model output and publication stayed on the bench.
+
+Manual smoke/report defaults now use GPT-6.1 Sol. Historical results below keep
+their original model and CLI identifiers. No canary or reviewer request was added.
+
+### Earlier session-lock validation
 
 The entry workflow now routes issue and PR events to the canonical issue root,
 then calls a reusable session workflow under one root-keyed concurrency lock.

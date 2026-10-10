@@ -10,7 +10,7 @@ on:
       model:
         description: Codex model to exercise.
         required: true
-        default: gpt-6-astra
+        default: gpt-6.1-sol
         type: string
 permissions:
   contents: read

@@ -11,7 +11,7 @@ on:
       model:
         description: Explicit Codex model to test.
         required: true
-        default: gpt-6-astra
+        default: gpt-6.1-sol
         type: string
       limit:
         description: Maximum number of newest open fixture issues to review (1-50).
