@@ -43,7 +43,7 @@ def test_unsupported_kind_raises_value_error_without_mutating_input(kind):
     assert current == {"id": "kitchen", "enabled": False}
 
 
-@pytest.mark.parametrize("enabled", [0, 1, "true", "false", None])
+@pytest.mark.parametrize("enabled", [0, 1, 2.5, "true", "false", None])
 def test_non_boolean_enabled_raises_type_error_without_mutating_input(enabled):
     current = {"id": "kitchen", "enabled": False}
     with pytest.raises(TypeError):
