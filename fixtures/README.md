@@ -221,6 +221,23 @@ for the bench account; this does not guarantee future model availability.
 Manual smoke/report defaults now use GPT-6.1 Sol. Historical results below keep
 their original model and CLI identifiers. No canary or reviewer request was added.
 
+The subsequent controller `a8d8dfd75d1e3b0a0622b89bfcf2c153ad2efbfb` prevents
+reopening from reviving a stopped request. It reads both the issue and PR's
+latest close/reopen/merge event through GraphQL, invalidates earlier commands,
+and includes that timestamp in publication freshness checks. Unknown history
+fails closed. The query was read-validated against merged product PR #2447
+and both live bench fixture types.
+[Closure-guard Linux contracts](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/38060483008)
+passed 72 pytest contracts including all 79 Node scenarios.
+The [live closure-guard continuation](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/38060486754)
+exercised the new timeline reads with read-only admission and the fresh App
+publisher, reran 14 fixture tests, [replied](https://github.com/homeassistant-ai/ha-mcp-workflows-dev/pull/73#discussion_r4237981799)
+and resolved the synthetic review, and returned the same session to ready at
+round 3/4. Neither fixture was closed or reopened during this probe; transition
+invalidation and missing-history behavior are covered by controller regressions.
+Product `a55cbfee` changes only an unrelated HAOS test's inspection polling
+timeout; its controller and Codex action are identical to this tested revision.
+
 ### Session admission and paid triggers — 2026-10-02 (America/Toronto)
 
 The entry workflow now routes issue and PR events to the canonical issue root,
