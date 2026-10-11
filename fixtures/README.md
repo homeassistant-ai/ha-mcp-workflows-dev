@@ -1,5 +1,16 @@
 # Permanent Codex workflow bench
 
+## PR interaction lab — 2026-10-11
+
+Julien requested real GitHub comment, PR-description and Actions interaction
+tests. The [isolated lab](pr-interactions/README.md) used manifest fixture #74,
+an explicitly armed observer, native Chrome clicks and a read-only synthetic
+consumer. The [results](pr-interactions/results.md) compare per-checkbox events,
+one-save edits, command-last/quiet-window handling and requested-action buttons.
+The observer is now disabled, its arming variable cleared and the fixture closed
+without merge. No model or product write occurred. Existing manual bench
+workflows and fixtures remain unchanged.
+
 The product action is owned by `homeassistant-ai/ha-mcp`. Every manual bench
 workflow takes `action-ref`, a full trusted 40-character commit SHA, and checks
 out its actions, workflows and unit-contract sources under `.test-subject`.

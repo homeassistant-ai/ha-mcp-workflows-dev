@@ -1,0 +1,286 @@
+{
+  "date": "2026-10-11",
+  "repository": "homeassistant-ai/ha-mcp-workflows-dev",
+  "fixture": 74,
+  "fixture_url": "https://github.com/homeassistant-ai/ha-mcp-workflows-dev/pull/74",
+  "live_actor": "julienld (repository admin)",
+  "production_writes": 0,
+  "model_calls": 0,
+  "events": [
+    {
+      "run_id": "38155129907",
+      "url": "https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/38155129907",
+      "event": "workflow_dispatch",
+      "action": null,
+      "sender": "julienld",
+      "owner": null,
+      "editor": null,
+      "comment_id": null,
+      "control_kind": null,
+      "eligible": false
+    },
+    {
+      "run_id": "38155132718",
+      "url": "https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/38155132718",
+      "event": "workflow_dispatch",
+      "action": null,
+      "sender": "julienld",
+      "owner": null,
+      "editor": null,
+      "comment_id": null,
+      "control_kind": null,
+      "eligible": false
+    },
+    {
+      "run_id": "38155324959",
+      "url": "https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/38155324959",
+      "event": "pull_request_target",
+      "action": "edited",
+      "sender": "julienld",
+      "owner": null,
+      "editor": null,
+      "comment_id": null,
+      "control_kind": null,
+      "eligible": false
+    },
+    {
+      "run_id": "38155326192",
+      "url": "https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/38155326192",
+      "event": "pull_request_target",
+      "action": "edited",
+      "sender": "julienld",
+      "owner": null,
+      "editor": null,
+      "comment_id": null,
+      "control_kind": null,
+      "eligible": false
+    },
+    {
+      "run_id": "38155410205",
+      "url": "https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/38155410205",
+      "event": "issue_comment",
+      "action": "edited",
+      "sender": "julienld",
+      "owner": "julienld",
+      "editor": "julienld",
+      "comment_id": 6111095147,
+      "control_kind": "author-owned",
+      "eligible": false
+    },
+    {
+      "run_id": "38155411722",
+      "url": "https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/38155411722",
+      "event": "issue_comment",
+      "action": "edited",
+      "sender": "julienld",
+      "owner": "julienld",
+      "editor": "julienld",
+      "comment_id": 6111095147,
+      "control_kind": "author-owned",
+      "eligible": false
+    },
+    {
+      "run_id": "38155413030",
+      "url": "https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/38155413030",
+      "event": "issue_comment",
+      "action": "edited",
+      "sender": "julienld",
+      "owner": "julienld",
+      "editor": "julienld",
+      "comment_id": 6111095147,
+      "control_kind": "author-owned",
+      "eligible": false
+    },
+    {
+      "run_id": "38155445472",
+      "url": "https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/38155445472",
+      "event": "issue_comment",
+      "action": "edited",
+      "sender": "julienld",
+      "owner": "julienld",
+      "editor": "julienld",
+      "comment_id": 6111095147,
+      "control_kind": "author-owned",
+      "eligible": true
+    },
+    {
+      "run_id": "38155446949",
+      "url": "https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/38155446949",
+      "event": "issue_comment",
+      "action": "edited",
+      "sender": "julienld",
+      "owner": "julienld",
+      "editor": "julienld",
+      "comment_id": 6111095147,
+      "control_kind": "author-owned",
+      "eligible": false
+    },
+    {
+      "run_id": "38155481601",
+      "url": "https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/38155481601",
+      "event": "issue_comment",
+      "action": "edited",
+      "sender": "julienld",
+      "owner": "ha-mcp-agent[bot]",
+      "editor": "julienld",
+      "comment_id": 6111092843,
+      "control_kind": "bot-owned",
+      "eligible": false
+    },
+    {
+      "run_id": "38155556815",
+      "url": "https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/38155556815",
+      "event": "pull_request_target",
+      "action": "edited",
+      "sender": "julienld",
+      "owner": null,
+      "editor": null,
+      "comment_id": null,
+      "control_kind": null,
+      "eligible": false
+    },
+    {
+      "run_id": "38155889769",
+      "url": "https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/38155889769",
+      "event": "issue_comment",
+      "action": "edited",
+      "sender": "julienld",
+      "owner": "julienld",
+      "editor": "julienld",
+      "comment_id": 6111095147,
+      "control_kind": "author-owned",
+      "eligible": true
+    },
+    {
+      "run_id": "38155931921",
+      "url": "https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/38155931921",
+      "event": "issue_comment",
+      "action": "edited",
+      "sender": "ha-mcp-agent[bot]",
+      "owner": "ha-mcp-agent[bot]",
+      "editor": "ha-mcp-agent",
+      "comment_id": 6111092843,
+      "control_kind": "bot-owned",
+      "eligible": false
+    },
+    {
+      "run_id": "38156110035",
+      "url": "https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/38156110035",
+      "event": "pull_request_target",
+      "action": "ready_for_review",
+      "sender": "julienld",
+      "owner": null,
+      "editor": null,
+      "comment_id": null,
+      "control_kind": null,
+      "eligible": false
+    },
+    {
+      "run_id": "38156112400",
+      "url": "https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/38156112400",
+      "event": "issue_comment",
+      "action": "created",
+      "sender": "julienld",
+      "owner": "julienld",
+      "editor": null,
+      "comment_id": 6111220925,
+      "control_kind": null,
+      "eligible": false
+    },
+    {
+      "run_id": "38156117476",
+      "url": "https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/38156117476",
+      "event": "issue_comment",
+      "action": "edited",
+      "sender": "coderabbitai[bot]",
+      "owner": "coderabbitai[bot]",
+      "editor": "coderabbitai",
+      "comment_id": 6110966028,
+      "control_kind": null,
+      "eligible": false
+    },
+    {
+      "run_id": "38156601224",
+      "url": "https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/38156601224",
+      "event": "issue_comment",
+      "action": "edited",
+      "sender": "julienld",
+      "owner": "julienld",
+      "editor": "julienld",
+      "comment_id": 6111095147,
+      "control_kind": "author-owned",
+      "eligible": false
+    },
+    {
+      "run_id": "38156810547",
+      "url": "https://github.com/homeassistant-ai/ha-mcp-workflows-dev/actions/runs/38156810547",
+      "event": "workflow_dispatch",
+      "action": null,
+      "sender": "julienld",
+      "owner": null,
+      "editor": null,
+      "comment_id": null,
+      "control_kind": null,
+      "eligible": false
+    }
+  ],
+  "settled_inputs": [
+    {
+      "fixture": 74,
+      "head": "ceac2111ce14af22e773a53ae6470d42d9508c10",
+      "comment_id": 6111095147,
+      "control_kind": "author-owned",
+      "submission_sender": "julienld",
+      "latest_editor": {
+        "login": "julienld",
+        "__typename": "User"
+      },
+      "latest_updated_at": "2026-10-11T16:26:07Z",
+      "quiet_seconds": 30,
+      "total_seconds": 31,
+      "flags": {
+        "Comments only from the bot": false,
+        "Allow the bot to push bounded fixes": true,
+        "Allow the assigned maintainer to push bounded fixes": true,
+        "I'm happy with what this change does": true,
+        "Run or update assessment": true
+      },
+      "valid_modes": true,
+      "synthetic_assessment_reserved": true,
+      "model_calls": 0,
+      "repository_writes": 0,
+      "note": "The synthetic consumer would assess the final configuration once. No model or patch was executed."
+    },
+    {
+      "fixture": 74,
+      "head": "ceac2111ce14af22e773a53ae6470d42d9508c10",
+      "comment_id": 6111095147,
+      "control_kind": "author-owned",
+      "submission_sender": "julienld",
+      "latest_editor": {
+        "login": "julienld",
+        "__typename": "User"
+      },
+      "latest_updated_at": "2026-10-11T16:33:05Z",
+      "quiet_seconds": 31,
+      "total_seconds": 55,
+      "flags": {
+        "Comments only from the bot": true,
+        "Allow the bot to push bounded fixes": true,
+        "Allow the assigned maintainer to push bounded fixes": true,
+        "I'm happy with what this change does": true,
+        "Run or update assessment": true
+      },
+      "valid_modes": false,
+      "synthetic_assessment_reserved": false,
+      "model_calls": 0,
+      "repository_writes": 0,
+      "note": "No assessment: withdrawn request, missing sign-off, conflicting modes or unverifiable editor."
+    }
+  ],
+  "limitations": [
+    "Outside-contributor account permissions were not exercised live.",
+    "No external GitHub App check_run webhook receiver was tested.",
+    "The synthetic consumer did not execute a model, patch code or request a reviewer."
+  ]
+}

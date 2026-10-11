@@ -1,5 +1,10 @@
 # PR interaction lab — 2026-10-11
 
+**Completed:** [results and limitations](results.md). The observer is disabled,
+its arming variable removed, and fixture #74 closed without merging. All runs
+finished. Future reproduction requires a new explicit, manually armed session
+and a reopened/revalidated manifest fixture.
+
 Julien explicitly requested real comment/PR-text/Actions tests on this bench
 before preparing an English maintainer discussion document. This is a narrow,
 manually armed exception to the bench's usual manual-trigger-only rule: an
