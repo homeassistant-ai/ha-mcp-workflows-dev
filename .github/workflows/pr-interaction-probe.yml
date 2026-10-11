@@ -55,7 +55,7 @@ jobs:
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: event-${{ github.run_id }}
-          path: .probe-results
+          path: probe-results
           retention-days: 30
 
   settled-input:
@@ -86,7 +86,7 @@ jobs:
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: stable-input-${{ github.run_id }}
-          path: .probe-results
+          path: probe-results
           retention-days: 30
 
   comment-operation:
@@ -113,7 +113,7 @@ jobs:
           private-key: ${{ secrets.HA_MCP_AGENT_APP_PRIVATE_KEY }}
           repositories: ha-mcp-workflows-dev
           permission-issues: write
-          permission-pull-requests: read
+          permission-pull-requests: write
       - name: Mutate only the manifest-listed synthetic comment
         env:
           GH_TOKEN: ${{ steps.token.outputs.token }}
@@ -123,7 +123,7 @@ jobs:
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: comment-operation-${{ github.run_id }}
-          path: .probe-results
+          path: probe-results
           retention-days: 30
 
   check-operation:
@@ -152,5 +152,5 @@ jobs:
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: check-operation-${{ github.run_id }}
-          path: .probe-results
+          path: probe-results
           retention-days: 30

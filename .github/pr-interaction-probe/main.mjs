@@ -41,8 +41,8 @@ function flags(body) {
   return result;
 }
 function report(name,data) {
-  mkdirSync('.probe-results',{recursive:true});
-  writeFileSync(`.probe-results/${name}.json`,JSON.stringify(data,null,2)+'\n');
+  mkdirSync('probe-results',{recursive:true});
+  writeFileSync(`probe-results/${name}.json`,JSON.stringify(data,null,2)+'\n');
   const guard=randomUUID();
   console.log(`::stop-commands::${guard}`);
   console.log(JSON.stringify(data,null,2));

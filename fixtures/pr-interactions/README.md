@@ -14,7 +14,7 @@ control comments. Never reuse the existing coding/report fixtures for this lab.
 - Only `homeassistant-ai/ha-mcp-workflows-dev`; product remains read-only.
 - Event observers and the synthetic consumer use read-only job tokens.
 - Manual comment operations mint an existing App token scoped only to this
-  bench, with Issues write and Pull requests read. No App permission expands.
+  bench, with Issues/Pull requests write. No installed App permission expands.
 - The optional check-button operation uses this bench's GitHub Actions token,
   without OAuth or the dedicated App's private key.
 - Every operation requires a future `PR_INTERACTION_PROBE_UNTIL` timestamp.
