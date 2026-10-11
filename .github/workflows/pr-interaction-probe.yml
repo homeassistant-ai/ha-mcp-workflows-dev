@@ -1,0 +1,156 @@
+name: PR interaction probe
+
+# Explicitly armed, fixture-scoped, secretless event observation for the
+# user-requested 2026-10-11 lab. Disable after the manual session.
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: Manual probe operation; no model is invoked.
+        required: true
+        type: choice
+        options: [observe, create-control, bot-status, create-check]
+  issue_comment:
+    types: [created, edited]
+  pull_request_target:
+    types: [edited, ready_for_review, converted_to_draft]
+  check_run:
+    types: [requested_action]
+
+permissions:
+  contents: read
+
+jobs:
+  observe:
+    if: >-
+      github.repository == 'homeassistant-ai/ha-mcp-workflows-dev' &&
+      vars.PR_INTERACTION_PROBE_UNTIL != '' &&
+      (github.event_name == 'workflow_dispatch' ||
+       github.event.issue.number == 74 ||
+       github.event.pull_request.number == 74 ||
+       github.event.check_run.external_id == 'pr-controls-74')
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      contents: read
+      issues: read
+      pull-requests: read
+    outputs:
+      eligible: ${{ steps.capture.outputs.eligible }}
+      manual_authorized: ${{ steps.capture.outputs.manual_authorized }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: master
+          persist-credentials: false
+          sparse-checkout: |
+            .github/pr-interaction-probe
+            fixtures/pr-interactions
+      - name: Capture only the manifest-listed fixture event
+        id: capture
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PROBE_UNTIL: ${{ vars.PR_INTERACTION_PROBE_UNTIL }}
+        run: node .github/pr-interaction-probe/main.mjs capture
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: event-${{ github.run_id }}
+          path: .probe-results
+          retention-days: 30
+
+  settled-input:
+    needs: observe
+    if: needs.observe.outputs.eligible == 'true'
+    concurrency:
+      group: pr-interaction-probe-${{ github.repository }}-74
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      contents: read
+      issues: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: master
+          persist-credentials: false
+          sparse-checkout: |
+            .github/pr-interaction-probe
+            fixtures/pr-interactions
+      - name: Wait for stable choices; reserve synthetic work only
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PROBE_UNTIL: ${{ vars.PR_INTERACTION_PROBE_UNTIL }}
+        run: node .github/pr-interaction-probe/main.mjs settle
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: stable-input-${{ github.run_id }}
+          path: .probe-results
+          retention-days: 30
+
+  comment-operation:
+    needs: observe
+    if: needs.observe.outputs.manual_authorized == 'true' && (inputs.operation == 'create-control' || inputs.operation == 'bot-status')
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      contents: read
+      issues: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: master
+          persist-credentials: false
+          sparse-checkout: |
+            .github/pr-interaction-probe
+            fixtures/pr-interactions
+      - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3
+        id: token
+        with:
+          client-id: ${{ vars.HA_MCP_AGENT_CLIENT_ID }}
+          private-key: ${{ secrets.HA_MCP_AGENT_APP_PRIVATE_KEY }}
+          repositories: ha-mcp-workflows-dev
+          permission-issues: write
+          permission-pull-requests: read
+      - name: Mutate only the manifest-listed synthetic comment
+        env:
+          GH_TOKEN: ${{ steps.token.outputs.token }}
+          PROBE_UNTIL: ${{ vars.PR_INTERACTION_PROBE_UNTIL }}
+          OPERATION: ${{ inputs.operation }}
+        run: node .github/pr-interaction-probe/main.mjs "$OPERATION"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: comment-operation-${{ github.run_id }}
+          path: .probe-results
+          retention-days: 30
+
+  check-operation:
+    needs: observe
+    if: needs.observe.outputs.manual_authorized == 'true' && inputs.operation == 'create-check'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      contents: read
+      issues: read
+      pull-requests: read
+      checks: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: master
+          persist-credentials: false
+          sparse-checkout: |
+            .github/pr-interaction-probe
+            fixtures/pr-interactions
+      - name: Create a synthetic action button using GitHub Actions' App
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PROBE_UNTIL: ${{ vars.PR_INTERACTION_PROBE_UNTIL }}
+        run: node .github/pr-interaction-probe/main.mjs create-check
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: check-operation-${{ github.run_id }}
+          path: .probe-results
+          retention-days: 30
