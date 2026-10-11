@@ -5,5 +5,8 @@
   "head_sha": "ceac2111ce14af22e773a53ae6470d42d9508c10",
   "label": "workflow-fixture",
   "marker": "<!-- pr-interaction-probe:2026-10-11 -->",
-  "control_comments": []
+  "control_comments": [
+    { "id": 6111092843, "kind": "bot-owned", "owner": "ha-mcp-agent[bot]" },
+    { "id": 6111095147, "kind": "author-owned", "owner": "julienld" }
+  ]
 }
